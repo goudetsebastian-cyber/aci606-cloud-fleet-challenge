@@ -6,8 +6,9 @@ venv/
 .env
 
 # Models and generated data
-models/
-*.joblib
+models/*
+!models/model.joblib
+!models/metadata.json
 *.keras
 *.h5
 data/*.csv
@@ -21,3 +22,12 @@ data/*.csv
 # OS / editor
 .DS_Store
 .vscode/
+
+# Development and verification output
+.pytest_cache/
+tmp/
+output/
+tools/
+*.log
+.env.*
+!.env.example
