@@ -7,7 +7,7 @@ Servicio: **[https://aci606-cloud-fleet-sebit44s.onrender.com](https://aci606-cl
 
 Repositorio: [https://github.com/goudetsebastian-cyber/aci606-cloud-fleet-challenge](https://github.com/goudetsebastian-cyber/aci606-cloud-fleet-challenge)
 
-Verificación pública: pendiente de completar pruebas; revisar reports/deployment_status.json.
+Verificación pública: completa.
 <!-- deployment:end -->
 
 ![Panel de operación con datos sintéticos](reports/dashboard_desktop.png)

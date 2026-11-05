@@ -1,5 +1,5 @@
 {
-  "status": "deployed_pending_verification",
+  "status": "verified",
   "public_url": "https://aci606-cloud-fleet-sebit44s.onrender.com",
   "repository_url": "https://github.com/goudetsebastian-cyber/aci606-cloud-fleet-challenge",
   "platform": "Render",
@@ -7,6 +7,6 @@
   "public_contract_verified": true,
   "public_restart_verified": true,
   "public_quality_verified": true,
-  "auto_deploy_verified": false,
+  "auto_deploy_verified": true,
   "other_device_verified": true
 }

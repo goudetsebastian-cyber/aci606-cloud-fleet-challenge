@@ -1,0 +1,49 @@
+{
+  "api_url": "https://aci606-cloud-fleet-sebit44s.onrender.com",
+  "health": {
+    "status": "ok",
+    "service": "aci606-cloud-fleet",
+    "version": "1.0.0",
+    "database": "postgresql",
+    "model_loaded": true,
+    "instance_id": "0d2f8f4885714814a3c313f337efccdb",
+    "model_version": "v1-lr-39cbd0a465",
+    "utc": "2026-11-05T03:18:50.894440+00:00"
+  },
+  "metrics": {
+    "requests_total": 229,
+    "telemetry_requests": 213,
+    "prediction_requests": 0,
+    "errors": 2,
+    "client_errors": 2,
+    "server_errors": 0,
+    "inferences_completed": 213,
+    "telemetry_inferences": 213,
+    "predict_inferences": 0,
+    "uptime_seconds": 178.194,
+    "requests_per_second": 1.2851,
+    "status_codes": {
+      "405": 1,
+      "307": 1,
+      "200": 225,
+      "404": 1
+    },
+    "average_prediction_latency_ms": 1.4647,
+    "prediction_latency_p50_ms": 1.198,
+    "prediction_latency_p95_ms": 2.5103,
+    "latency_window_samples": 213,
+    "counters_scope": "current_process; latency percentiles: last 2000 inferences",
+    "stored_samples": 1005,
+    "robots_total": 9,
+    "online_robots": 6,
+    "persistence": "postgresql",
+    "model": {
+      "version": "v1-lr-39cbd0a465",
+      "name": "LogisticRegression",
+      "test_macro_f1": 0.9260473439220217,
+      "baseline_macro_f1": 0.198164193188642,
+      "test_fleets": 16
+    }
+  },
+  "development_api_processes_stopped": true
+}
