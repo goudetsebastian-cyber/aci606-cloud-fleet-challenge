@@ -1,0 +1,312 @@
+{
+  "generated_at_utc": "2026-11-05T02:12:55.063323+00:00",
+  "model_version": "v1-lr-39cbd0a465",
+  "selected_model": "LogisticRegression",
+  "seed": 606,
+  "dataset_sha256": "39cbd0a465ac14f0ef0ca7816f72b3f56be677baf5d8fca49d0dcf9f6dce5de9",
+  "samples": 32768,
+  "fleets": 64,
+  "class_distribution": {
+    "NORMAL": 10213,
+    "WARNING": 9647,
+    "CRITICAL": 12908
+  },
+  "missing_values": {
+    "obstacle_distance": 0,
+    "fleet_id": 0,
+    "vibration": 0,
+    "motor_temp": 0,
+    "motor_current": 0,
+    "battery": 0,
+    "status": 0,
+    "speed": 0
+  },
+  "feature_summary": {
+    "speed": {
+      "count": 32768.0,
+      "mean": 0.8054265411376953,
+      "std": 0.1277263415174344,
+      "min": 0.2507,
+      "25%": 0.72,
+      "50%": 0.80525,
+      "75%": 0.8918,
+      "max": 1.25
+    },
+    "battery": {
+      "count": 32768.0,
+      "mean": 82.78813616943359,
+      "std": 8.8338362866829,
+      "min": 65.762,
+      "25%": 75.075,
+      "50%": 83.224,
+      "75%": 90.62525,
+      "max": 99.895
+    },
+    "motor_temp": {
+      "count": 32768.0,
+      "mean": 62.12820104980469,
+      "std": 9.394161600497362,
+      "min": 37.616,
+      "25%": 54.732,
+      "50%": 62.4075,
+      "75%": 69.755,
+      "max": 85.492
+    },
+    "vibration": {
+      "count": 32768.0,
+      "mean": 0.9918834930419921,
+      "std": 0.42515357464328657,
+      "min": 0.0,
+      "25%": 0.6538,
+      "50%": 1.0039,
+      "75%": 1.3402,
+      "max": 1.9731
+    },
+    "motor_current": {
+      "count": 32768.0,
+      "mean": 4.920171655273437,
+      "std": 0.595060051702172,
+      "min": 2.7223,
+      "25%": 4.5075,
+      "50%": 4.92335,
+      "75%": 5.3386,
+      "max": 6.9851
+    },
+    "obstacle_distance": {
+      "count": 32768.0,
+      "mean": 1.3109528472900391,
+      "std": 1.1482548643540829,
+      "min": 0.05,
+      "25%": 0.39385,
+      "50%": 0.95845,
+      "75%": 1.915625,
+      "max": 4.0
+    }
+  },
+  "train_samples": 24576,
+  "test_samples": 8192,
+  "train_fleets": [
+    "S606-F001",
+    "S606-F002",
+    "S606-F003",
+    "S606-F004",
+    "S606-F005",
+    "S606-F006",
+    "S606-F007",
+    "S606-F008",
+    "S606-F010",
+    "S606-F011",
+    "S606-F012",
+    "S606-F013",
+    "S606-F015",
+    "S606-F016",
+    "S606-F017",
+    "S606-F018",
+    "S606-F019",
+    "S606-F021",
+    "S606-F022",
+    "S606-F023",
+    "S606-F025",
+    "S606-F026",
+    "S606-F027",
+    "S606-F028",
+    "S606-F029",
+    "S606-F031",
+    "S606-F033",
+    "S606-F034",
+    "S606-F036",
+    "S606-F042",
+    "S606-F043",
+    "S606-F044",
+    "S606-F045",
+    "S606-F046",
+    "S606-F048",
+    "S606-F049",
+    "S606-F050",
+    "S606-F051",
+    "S606-F052",
+    "S606-F054",
+    "S606-F055",
+    "S606-F056",
+    "S606-F057",
+    "S606-F058",
+    "S606-F059",
+    "S606-F060",
+    "S606-F062",
+    "S606-F063"
+  ],
+  "test_fleets": [
+    "S606-F009",
+    "S606-F014",
+    "S606-F020",
+    "S606-F024",
+    "S606-F030",
+    "S606-F032",
+    "S606-F035",
+    "S606-F037",
+    "S606-F038",
+    "S606-F039",
+    "S606-F040",
+    "S606-F041",
+    "S606-F047",
+    "S606-F053",
+    "S606-F061",
+    "S606-F064"
+  ],
+  "overlapping_fleets": [],
+  "train_class_distribution": {
+    "NORMAL": 7987,
+    "WARNING": 7146,
+    "CRITICAL": 9443
+  },
+  "test_class_distribution": {
+    "NORMAL": 2226,
+    "WARNING": 2501,
+    "CRITICAL": 3465
+  },
+  "features": [
+    "speed",
+    "battery",
+    "motor_temp",
+    "vibration",
+    "motor_current",
+    "obstacle_distance"
+  ],
+  "labels": [
+    "NORMAL",
+    "WARNING",
+    "CRITICAL"
+  ],
+  "models": {
+    "LogisticRegression": {
+      "cv_macro_f1_mean": 0.9249321103121102,
+      "cv_macro_f1_std": 0.002559570051871627,
+      "cv_folds": [
+        0.9275415251524234,
+        0.9217828334901411,
+        0.927362235693716,
+        0.9230418469121605
+      ],
+      "test_macro_f1": 0.9260473439220217,
+      "confusion_matrix": [
+        [
+          2078,
+          148,
+          0
+        ],
+        [
+          116,
+          2247,
+          138
+        ],
+        [
+          0,
+          184,
+          3281
+        ]
+      ],
+      "classification_report": {
+        "NORMAL": {
+          "precision": 0.9471285323609845,
+          "recall": 0.9335130278526504,
+          "f1-score": 0.9402714932126697,
+          "support": 2226.0
+        },
+        "WARNING": {
+          "precision": 0.8712679333074835,
+          "recall": 0.8984406237504998,
+          "f1-score": 0.8846456692913386,
+          "support": 2501.0
+        },
+        "CRITICAL": {
+          "precision": 0.9596373208540508,
+          "recall": 0.9468975468975469,
+          "f1-score": 0.953224869262057,
+          "support": 3465.0
+        },
+        "accuracy": 0.928466796875,
+        "macro avg": {
+          "precision": 0.926011262174173,
+          "recall": 0.9262837328335657,
+          "f1-score": 0.9260473439220217,
+          "support": 8192.0
+        },
+        "weighted avg": {
+          "precision": 0.9292593421627018,
+          "recall": 0.928466796875,
+          "f1-score": 0.9287679852028892,
+          "support": 8192.0
+        }
+      },
+      "mean_single_inference_ms": 1.114642999964417
+    },
+    "RandomForest": {
+      "cv_macro_f1_mean": 0.9201865233154911,
+      "cv_macro_f1_std": 0.003503456873080679,
+      "cv_folds": [
+        0.9219227247875801,
+        0.9172343232517015,
+        0.925073987133353,
+        0.9165150580893296
+      ],
+      "test_macro_f1": 0.9229421002342998,
+      "confusion_matrix": [
+        [
+          2068,
+          158,
+          0
+        ],
+        [
+          118,
+          2223,
+          160
+        ],
+        [
+          0,
+          173,
+          3292
+        ]
+      ],
+      "classification_report": {
+        "NORMAL": {
+          "precision": 0.9460201280878316,
+          "recall": 0.9290206648697215,
+          "f1-score": 0.9374433363553943,
+          "support": 2226.0
+        },
+        "WARNING": {
+          "precision": 0.8703993735317149,
+          "recall": 0.8888444622151139,
+          "f1-score": 0.8795252225519288,
+          "support": 2501.0
+        },
+        "CRITICAL": {
+          "precision": 0.9536500579374276,
+          "recall": 0.9500721500721501,
+          "f1-score": 0.9518577417955761,
+          "support": 3465.0
+        },
+        "accuracy": 0.9256591796875,
+        "macro avg": {
+          "precision": 0.9233565198523248,
+          "recall": 0.9226457590523284,
+          "f1-score": 0.9229421002342998,
+          "support": 8192.0
+        },
+        "weighted avg": {
+          "precision": 0.9261605333349022,
+          "recall": 0.9256591796875,
+          "f1-score": 0.92585797407851,
+          "support": 8192.0
+        }
+      },
+      "mean_single_inference_ms": 8.434802999981912
+    }
+  },
+  "test_macro_f1": 0.9260473439220217,
+  "baseline_macro_f1": 0.198164193188642,
+  "selection_rule": "Highest 4-fold GroupKFold macro F1 on training fleets; prefer logistic if within 0.005. Test fleets are used only after selection.",
+  "python_version": "3.12.14",
+  "sklearn_version": "1.9.1",
+  "limitations": "Datos sintéticos del simulador docente. No acreditan desempeño en robots reales. Confidence es probabilidad estimada, sin calibración independiente."
+}
