@@ -10,14 +10,14 @@ services:
     autoDeployTrigger: commit
     envVars:
       - key: PYTHON_VERSION
-        value: 3.12.10
+        value: "3.12.10"
       - key: DATABASE_URL
         sync: false
       - key: MODEL_PATH
         value: models/model.joblib
       - key: ROBOT_ONLINE_SECONDS
-        value: 30
+        value: "30"
       - key: OPENBLAS_NUM_THREADS
-        value: 1
+        value: "1"
       - key: OMP_NUM_THREADS
-        value: 1
+        value: "1"
