@@ -61,6 +61,7 @@ Repositorio: {deployment['repository_url']}
 - Informe_tecnico_Ejercicio4.pdf: arquitectura, EDA, comparación de modelos y evidencia local/pública.
 - codigo/: implementación completa, modelo entrenado, datos y documentación.
 - codigo/docs/DEFENSA.md: guion y respuestas para la defensa.
+- codigo/docs/ALINEACION_CLASES.md: revisión de la solución frente a los materiales de persistencia del curso.
 - codigo/VER_DEMO_NUBE.cmd: abre el panel público y conecta seis robots, una vez preparado el entorno.
 - repositorio.bundle: historial Git real, rama de funcionalidad y merge a main. No basta con subir archivos sueltos para conservar la trazabilidad.
 

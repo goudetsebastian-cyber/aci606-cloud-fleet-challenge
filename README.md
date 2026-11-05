@@ -27,6 +27,8 @@ flowchart LR
 
 En la nube los datos viven en la tabla `telemetry` de **Neon PostgreSQL**, independiente del disco efímero de Render. `DATABASE_URL` es una variable privada. El modelo y el panel se despliegan desde Git. En desarrollo se admite SQLite en `storage/fleet.db`; Render rechaza esa configuración para evitar una falsa persistencia. Ver [la explicación técnica](docs/ARCHITECTURE.md).
 
+Se revisaron los materiales de persistencia y el laboratorio de sensores del curso: [correspondencia entre conceptos, implementación y evidencia](docs/ALINEACION_CLASES.md). Confirman la arquitectura elegida; el informe y la guía de defensa explican transacciones, índices, DBaaS y la diferencia entre persistencia y disponibilidad. El laboratorio de Colab es una práctica independiente y no cambia el contrato del Ejercicio 4.
+
 ## Ejecución local
 
 Python 3.12 recomendado. Desde la carpeta del proyecto, en Windows:
@@ -130,12 +132,15 @@ Para publicar y comprobar la persistencia después de un reinicio real de Render
 | Git | Rama `feature/cloud-platform`, commits reales y merge a `main` |
 | PaaS | `render.yaml`, guía de despliegue, estado público registrado |
 | Defensa | `docs/DEFENSA.md` |
+| Relación con la materia | `docs/ALINEACION_CLASES.md` e informe técnico |
 
 El historial original del docente se conserva. Los cambios de esta implementación tienen commits propios de asistencia, sin fechas o contribuciones ficticias. Las credenciales y las bases locales se excluyen de Git.
 
 ## Referencias
 
 - Loyola, O. (2026). *Ejercicio 4: Cloud Fleet Challenge. Del prototipo local a un servicio desplegado en una plataforma PaaS*. Pauta facilitada por el estudiante.
+- Loyola, O. (2026). *Persistencia y servicios de datos en Cloud*. Clase facilitada por el estudiante, 19 páginas.
+- Loyola, O. (2026). *Laboratorio: servicio persistente de datos de sensores. FastAPI + SQLite + cliente generador de mediciones*. Guía para Google Colab facilitada por el estudiante, 11 páginas.
 - [Repositorio base](https://github.com/DrOscarL/aci606-cloud-fleet-challenge)
 - [scikit-learn: GroupShuffleSplit](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GroupShuffleSplit.html)
 - [Render: FastAPI](https://render.com/docs/deploy-fastapi)

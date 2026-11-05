@@ -43,3 +43,23 @@ Solo afirmar que la publicación y su reinicio están verificados después de co
 **¿Qué mide inference_ms?** El trabajo interno del pipeline; no incluye la red ni el arranque en frío. El evaluador de flotas también mide p50 y p95 desde el cliente, que sí reflejan el recorrido de la solicitud.
 
 **¿Qué falta para producción real?** Datos y validación reales, autenticación y límites de uso, políticas de retención, migraciones, copias de seguridad y monitoreo externo. El alcance actual es el ejercicio con telemetría sintética y acceso evaluable por el docente.
+
+## Relación con las clases de persistencia
+
+La [revisión de los materiales](ALINEACION_CLASES.md) relaciona cada concepto con el código y la evidencia. La práctica de sensores en Colab enseña un patrón; las rutas y entregables de este trabajo siguen siendo los del Ejercicio 4.
+
+**¿Qué estado es volátil y cuál persiste?** Los contadores, el uptime y la ventana de latencias viven en RAM y se reinician. La telemetría y su predicción viven en PostgreSQL. El modelo se reconstruye en memoria a partir del artefacto versionado. Perder los contadores no significa perder el historial.
+
+**¿Qué significa separar cómputo y datos aquí?** Render puede reemplazar el proceso de la API y volver a conectarlo a la misma base de Neon. El historial no está ligado al disco de esa instancia. La API sí mantiene métricas locales; con varias réplicas habría que reunirlas mediante un sistema externo de observabilidad.
+
+**¿Cómo se aplica ACID?** Cada muestra y su predicción se guardan juntas dentro de `engine.begin()`: se confirma todo o se revierte ante un error. La API valida la entrada; el esquema exige clave primaria y columnas no nulas. PostgreSQL gestiona las transacciones concurrentes. Solo se responde `accepted=true` después del commit. Las pruebas de concurrencia y reinicio cubren esos escenarios; no demuestran aislamiento serializable ni recuperación de un desastre.
+
+**¿Para qué sirve el índice?** `(robot_id, timestamp, id)` ofrece una ruta de acceso acorde con buscar y ordenar el historial de un robot. Ocupa espacio y debe actualizarse al insertar. El motor elige si usarlo; no medimos su mejora con un análisis del plan de ejecución.
+
+**¿Por qué consultar y agregar en la base?** `COUNT`, `MAX` y la consulta de último evento trabajan cerca de los datos. `/robots` devuelve una fila por robot y evita enviar el historial completo para calcular su resumen. El promedio de batería del panel se calcula sobre ese resumen pequeño.
+
+**¿Por qué SQLite en la clase y PostgreSQL aquí?** SQLite permite observar persistencia manteniendo un archivo local. Ese archivo puede sobrevivir al proceso, pero no a la eliminación de su disco efímero. El Ejercicio 4 despliega la API en Render y separa el almacenamiento en Neon. SQLite se conserva como opción de desarrollo.
+
+**¿Qué sigue siendo responsabilidad del grupo con DBaaS?** El esquema, consultas, índices, credenciales, permisos, calidad y políticas de uso. Las capacidades de respaldo y recuperación dependen del servicio contratado y hay que comprobarlas. Nuestra prueba confirma datos intactos tras reiniciar Render; no se ha hecho una restauración desde un respaldo.
+
+**¿Qué ocurriría con cien veces más clientes?** Habría que medir conexiones, costo de consultas históricas, escrituras y CPU de inferencia. El pool tiene cinco conexiones y cinco adicionales; las consultas de resumen del panel recorren información histórica. La evaluación de 512 solicitudes, con ocho en paralelo, corresponde a predicción, no a un ensayo de volumen de almacenamiento.

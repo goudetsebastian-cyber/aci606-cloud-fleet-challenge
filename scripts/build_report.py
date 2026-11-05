@@ -240,8 +240,25 @@ def build(output):
         "[4] FastAPI en Render: render.com/docs/deploy-fastapi.",
         "[5] Render. Blueprint y plan gratuito: render.com/docs/blueprint-spec; render.com/docs/free.",
         "[6] Neon. Planes y PostgreSQL gestionado: neon.com/docs/introduction/plans. Consultas web: 4 y 5 de noviembre de 2026.",
+        "[7] Loyola, O. (2026). Persistencia y servicios de datos en Cloud. Material de clase recibido, 19 páginas.",
+        "[8] Loyola, O. (2026). Laboratorio: servicio persistente de datos de sensores. Guía para Google Colab recibida, 11 páginas.",
     ]
     add(*(p(escape(ref),"SmallR") for ref in refs))
+
+    next_page("Relación con las clases")
+    add(p("Se revisaron completos los dos materiales de persistencia facilitados por el estudiante. La arquitectura y las siete rutas del Ejercicio 4 son compatibles con la materia; se amplía su justificación sin cambiar el servicio publicado. [7, 8]"))
+    add(table(["Concepto", "Aplicación en Cloud Fleet"],[
+        ("Estado volátil y durable", "Contadores y uptime en RAM; telemetría y predicción en PostgreSQL. El modelo se recupera desde Git."),
+        ("Cómputo separado", "Render puede reemplazar la API y reconectarla a Neon. El historial no depende del disco de la instancia."),
+        ("Esquema e índice", "telemetry tiene clave primaria y columnas obligatorias. El índice (robot_id, timestamp, id) apoya el historial; mantenerlo cuesta espacio y escrituras."),
+        ("Transacciones", "engine.begin() guarda muestra y predicción en una fila. accepted=true se devuelve después del commit; un error revierte la transacción."),
+        ("Consultas y DBaaS", "COUNT y MAX se calculan en SQL. El proveedor opera el motor; el grupo conserva responsabilidades sobre consultas, esquema, acceso y recuperación."),
+    ],[WIDTH*.28,WIDTH*.72]))
+    section("Transferencia del laboratorio")
+    add(p("La guía de Colab indica que es una práctica independiente. Su patrón se transfiere a robots: recibir, validar, persistir y consultar. SQLite sirve en local mientras se conserva el archivo; el despliegue usa PostgreSQL externo para separar su ciclo de vida del cómputo. Las rutas de sensores y el ensayo de 100/1.000/5.000 escrituras no son entregables adicionales de esta pauta. [8, pp. 1, 9-11]"))
+    section("Qué demuestra la evidencia")
+    add(p("Las 125 muestras con hash idéntico y cambio de instance_id prueban conservación tras reiniciar Render. No prueban restauración de respaldos ni alta disponibilidad. Las 512 solicitudes, con ocho en paralelo, evalúan /predict y no el rendimiento de escritura. Un crecimiento de clientes exige medir consultas, conexiones, escrituras y CPU. No se afirma una capacidad que no se haya medido."))
+    add(p("docs/ALINEACION_CLASES.md contiene la correspondencia con páginas, código y evidencias. docs/DEFENSA.md agrega respuestas sobre ACID, índices, DBaaS y escalamiento. Revisión: 5 de noviembre de 2026.","SmallR"))
     output.parent.mkdir(parents=True,exist_ok=True)
     doc=SimpleDocTemplate(str(output),pagesize=A4,rightMargin=44,leftMargin=44,topMargin=61,bottomMargin=57,title="Ejercicio 4 - Cloud Fleet Challenge",author="Proyecto ACI606",subject="Implementación y evidencia del servicio de flotas")
     doc.build(body,onFirstPage=page_frame,onLaterPages=page_frame)
