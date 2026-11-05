@@ -1,0 +1,32 @@
+{
+  "public_url": "https://aci606-cloud-fleet-sebit44s.onrender.com/dashboard",
+  "theme": "white and soft navy",
+  "verified_at_utc": "2026-11-05T17:19:10.414918+00:00",
+  "deployed_commit": "7bcc9f8f011d5d582b71805278ef86839f606237",
+  "deployment_id": "dep-dbmbj63bc2fs73b2ur60",
+  "public_health": "ok",
+  "palette": {
+    "bg": "#f4f7fb",
+    "surface": "#ffffff",
+    "line": "#d7e1ee",
+    "text": "#203653",
+    "muted": "#526780",
+    "accent": "#365f8f",
+    "normal": "#247058",
+    "amber": "#886019",
+    "red": "#b14250",
+    "blue": "#6384aa"
+  },
+  "contrast_ratios": {
+    "body": 12.25,
+    "secondary": 5.82,
+    "accent": 6.58,
+    "header": 10.24,
+    "normal": 5.23,
+    "warning": 5.04,
+    "critical": 4.87
+  },
+  "desktop_verified": true,
+  "mobile_verified": true,
+  "passed": true
+}

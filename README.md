@@ -2,6 +2,8 @@
 
 Plataforma de flotas desarrollada sobre el [starter del docente](https://github.com/DrOscarL/aci606-cloud-fleet-challenge) para el Ejercicio 4: telemetría persistente, clasificación de condición, panel de operación y métricas.
 
+El panel utiliza superficies blancas, azul marino suave y textos de alto contraste. El mapa, los gráficos y las etiquetas de condición están adaptados al tema claro.
+
 <!-- deployment:start -->
 Servicio: **[https://aci606-cloud-fleet-sebit44s.onrender.com](https://aci606-cloud-fleet-sebit44s.onrender.com)** · [Panel](https://aci606-cloud-fleet-sebit44s.onrender.com/dashboard) · [API](https://aci606-cloud-fleet-sebit44s.onrender.com/docs)
 

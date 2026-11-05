@@ -14,10 +14,10 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import Flowable, Image, PageBreak, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 ROOT = Path(__file__).resolve().parents[1]
-INK = colors.HexColor("#173247")
-TEAL = colors.HexColor("#087e76")
-MUTED = colors.HexColor("#516979")
-PALE = colors.HexColor("#eaf4f3")
+INK = colors.HexColor("#203653")
+TEAL = colors.HexColor("#365f8f")
+MUTED = colors.HexColor("#526780")
+PALE = colors.HexColor("#edf3fa")
 LINE = colors.HexColor("#d8e3e8")
 WIDTH = A4[0] - 88
 REPORT_DATE = "5 de noviembre de 2026"
@@ -139,7 +139,7 @@ def build(output):
     kpis.setStyle(TableStyle([("BACKGROUND",(0,0),(-1,-1),PALE),("TOPPADDING",(0,0),(-1,0),13),("BOTTOMPADDING",(0,1),(-1,1),13)]))
     add(kpis,Spacer(1,17))
     if ready:
-        add(note(f"<b>Servicio público verificado.</b> <link href='{escape(deployment['public_url'])}' color='#087e76'>{escape(deployment['public_url'])}</link><br/>Contrato, calidad y persistencia después del reinicio comprobados."))
+        add(note(f"<b>Servicio público verificado.</b> <link href='{escape(deployment['public_url'])}' color='#365f8f'>{escape(deployment['public_url'])}</link><br/>Contrato, calidad y persistencia después del reinicio comprobados."))
     else:
         add(note("<b>Estado de la entrega:</b> implementación y evidencia local verificadas. La publicación pública y su prueba de reinicio siguen pendientes de completar la vinculación y el despliegue en las cuentas del estudiante.",colors.HexColor("#fff3df")))
     section("Objetivo y solución")
@@ -218,9 +218,9 @@ def build(output):
 
     next_page("Despliegue, entrega y defensa")
     if deployment.get("public_url"):
-        add(p(f"<b>Servicio:</b> <link href='{escape(deployment['public_url'])}' color='#087e76'>{escape(deployment['public_url'])}</link>"))
+        add(p(f"<b>Servicio:</b> <link href='{escape(deployment['public_url'])}' color='#365f8f'>{escape(deployment['public_url'])}</link>"))
     if deployment.get("repository_url"):
-        add(p(f"<b>Repositorio:</b> <link href='{escape(deployment['repository_url'])}' color='#087e76'>{escape(deployment['repository_url'])}</link>","SmallR"))
+        add(p(f"<b>Repositorio:</b> <link href='{escape(deployment['repository_url'])}' color='#365f8f'>{escape(deployment['repository_url'])}</link>","SmallR"))
     add(note("<b>Estado público: verificado.</b> La URL está registrada en el README con evidencia del contrato, calidad y reinicio." if ready else "<b>Estado público: pendiente.</b> No se presenta una dirección propuesta como URL activa. El estado comprobado se conserva en reports/deployment_status.json.",PALE if ready else colors.HexColor("#fff3df")))
     section("Configuración y cierre de aceptación")
     add(p("Render ejecuta FastAPI con Uvicorn en 0.0.0.0 y el puerto PORT. El modelo está versionado y el build instala requirements.txt. DATABASE_URL se guarda como secreto del servicio; los datos viven en Neon, AWS Oregon. La rama de funcionalidad y el merge a main conservan la trazabilidad real. [4, 5, 6]"))
