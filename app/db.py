@@ -44,6 +44,7 @@ class Storage:
                 options["poolclass"] = StaticPool
         else:
             options.update(pool_size=5, max_overflow=5, pool_recycle=240)
+            options["connect_args"] = {"connect_timeout": 15}
         self.engine = create_engine(parsed, **options)
         if self.backend == "sqlite":
             @event.listens_for(self.engine, "connect")

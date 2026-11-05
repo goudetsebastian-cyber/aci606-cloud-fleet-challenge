@@ -7,7 +7,7 @@ Status = Literal["NORMAL", "WARNING", "CRITICAL"]
 
 
 class Telemetry(BaseModel):
-    model_config = ConfigDict(allow_inf_nan=False, extra="forbid", str_strip_whitespace=True)
+    model_config = ConfigDict(allow_inf_nan=False, extra="forbid", str_strip_whitespace=True, strict=True)
     robot_id: str = Field(min_length=1, max_length=64, pattern=r"^[A-Za-z0-9_.-]+$")
     timestamp: float = Field(ge=0)
     x: float

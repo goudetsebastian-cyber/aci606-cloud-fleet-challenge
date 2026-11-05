@@ -1,0 +1,41 @@
+// Isolated, headless application test. Does not use the user's browser profile.
+const path = require('node:path');
+const fs = require('node:fs');
+const assert = require('node:assert/strict');
+const playwright = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
+
+(async () => {
+  fs.mkdirSync('tmp/browser', {recursive:true});
+  const browser = await playwright.chromium.launch({headless:true, executablePath: process.env.CHROME_PATH || undefined});
+  const errors=[];
+  try {
+    const context = await browser.newContext({viewport:{width:1440,height:1100},deviceScaleFactor:1});
+    const page = await context.newPage();
+    page.on('pageerror', error=>errors.push(error.message));
+    await page.goto(process.env.API_URL || 'http://127.0.0.1:8000/dashboard');
+    await page.locator('#api-status').filter({hasText:'Operativo'}).waitFor();
+    await page.locator('#rows tr').first().waitFor();
+    await page.locator('#history-caption').filter({hasText:'muestras guardadas'}).waitFor();
+    assert.equal(await page.locator('#error').isVisible(),false);
+    await page.screenshot({path:'reports/dashboard_desktop.png',fullPage:true});
+    await page.getByRole('searchbox').fill('NO-SUCH-ROBOT');
+    assert.equal(await page.locator('#rows tr').count(),0);
+    assert.match(await page.locator('#empty').innerText(),/Sin coincidencias/);
+    await page.getByRole('searchbox').fill('R01');
+    await page.getByRole('button',{name:'Ver historial de R01',exact:true}).click();
+    await page.locator('#history-title').filter({hasText:'R01'}).waitFor();
+    await page.locator('#chart-feature').selectOption('motor_temp');
+    assert.match(await page.locator('#chart').getAttribute('aria-label'),/Temperatura/);
+    await page.getByRole('button',{name:'Pausar',exact:true}).click();
+    assert.equal(await page.locator('#pause').getAttribute('aria-pressed'),'true');
+    await page.getByRole('button',{name:'Reanudar',exact:true}).click();
+    await page.getByRole('searchbox').fill('');
+    await page.setViewportSize({width:390,height:844});
+    await page.screenshot({path:'reports/dashboard_mobile.png',fullPage:true});
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth),false,'Page overflows horizontally');
+    assert.deepEqual(errors,[]);
+    const result={passed:true,desktop:[1440,1100],mobile:[390,844],checks:['live data','history selection','filter','chart variable','pause/resume','mobile overflow','no JavaScript errors']};
+    fs.writeFileSync('reports/dashboard_checks.json',JSON.stringify(result,null,2));
+    console.log(JSON.stringify(result));
+  } finally {await browser.close();}
+})().catch(error=>{console.error(error);process.exit(1)});

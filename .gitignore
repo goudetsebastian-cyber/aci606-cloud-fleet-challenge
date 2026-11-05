@@ -18,6 +18,7 @@ data/*.csv
 *.db
 *.sqlite
 *.sqlite3
+storage/
 
 # OS / editor
 .DS_Store
@@ -25,6 +26,7 @@ data/*.csv
 
 # Development and verification output
 .pytest_cache/
+.pytest-work/
 tmp/
 output/
 tools/

@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 import logging
 import os
 from pathlib import Path
+from uuid import uuid4
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
@@ -31,6 +32,7 @@ def create_app(database_url: str | None = None, model_path: str | None = None) -
             api.state.predictor = await run_in_threadpool(Predictor, path)
             api.state.storage = storage
             api.state.metrics = Metrics()
+            api.state.instance_id = uuid4().hex
             api.state.online_seconds = float(os.getenv("ROBOT_ONLINE_SECONDS", "30"))
             yield
         finally:
@@ -74,6 +76,7 @@ def create_app(database_url: str | None = None, model_path: str | None = None) -
         return {
             "status": "ok", "service": "aci606-cloud-fleet", "version": api.version,
             "database": request.app.state.storage.backend, "model_loaded": True,
+            "instance_id": request.app.state.instance_id,
             "model_version": request.app.state.predictor.version,
             "utc": datetime.now(timezone.utc).isoformat(),
         }
