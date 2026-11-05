@@ -1,62 +1,103 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ACI606 Cloud Fleet Dashboard</title>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark"><title>Fleet · Centro de operación</title>
   <style>
-    :root { font-family: Inter, system-ui, sans-serif; color-scheme: dark; }
-    body { margin: 0; background:#0d1117; color:#e6edf3; }
-    header { padding:22px 28px; border-bottom:1px solid #30363d; display:flex; justify-content:space-between; }
-    h1 { margin:0; font-size:22px; }
-    .tag { color:#8b949e; }
-    main { padding:28px; }
-    .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; }
-    .card { border:1px solid #30363d; border-radius:14px; padding:18px; background:#161b22; }
-    .robot { font-size:20px; font-weight:700; margin-bottom:12px; }
-    .row { display:flex; justify-content:space-between; padding:5px 0; color:#c9d1d9; }
-    .bar { height:8px; background:#30363d; border-radius:99px; overflow:hidden; margin-top:7px; }
-    .fill { height:100%; background:#58a6ff; }
-    .empty { padding:40px; text-align:center; color:#8b949e; border:1px dashed #30363d; border-radius:14px; }
+    :root{--bg:#0b1219;--surface:#111d27;--surface2:#162530;--line:#273844;--text:#e8f0f3;--muted:#93a9b7;--teal:#65d8bb;--amber:#f0bd68;--red:#ff828b;--blue:#79b5ef;--radius:16px}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 "Segoe UI",system-ui,sans-serif}a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}button,input,select{font:inherit}button,select{cursor:pointer}button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--teal);outline-offset:4px}button{color:var(--text);background:var(--surface2);border:1px solid var(--line);border-radius:9px;padding:9px 14px}button:hover{border-color:var(--teal)}.top{border-bottom:1px solid var(--line);background:#0e1821;padding:18px 4vw;display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{display:flex;align-items:center;gap:12px;font-size:19px;font-weight:650;letter-spacing:.3px}.mark{background:var(--teal);color:var(--bg);width:32px;height:32px;border-radius:9px;display:grid;place-items:center;font-size:22px}.brand small{color:var(--muted);font-size:12px;font-weight:400;letter-spacing:1.5px;margin-left:12px}.top nav{display:flex;gap:22px;font-size:13px}.top nav a{color:var(--muted)}main{max-width:1600px;margin:auto;padding:34px 4vw 28px}.heading{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:25px}.eyebrow{text-transform:uppercase;letter-spacing:2px;font-size:11px;color:var(--teal);font-weight:600}h1{font-size:32px;font-weight:550;letter-spacing:-1px;margin:5px 0 7px}p{margin:0;color:var(--muted)}.live-controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap}.live{color:var(--teal);font-size:12px}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:currentColor;margin-right:7px}.banner{border:1px solid #805239;background:#30231c;color:#ffceab;padding:12px 16px;border-radius:10px;margin-bottom:20px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:22px}.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:19px 22px}.stat-label{font-size:12px;color:var(--muted)}.stat-value{font-size:32px;letter-spacing:-1px;font-weight:550;margin:5px 0}.stat-value small{font-size:16px;color:var(--muted);letter-spacing:0}.stat-note{font-size:11px;color:var(--muted)}.teal{color:var(--teal)}.red{color:var(--red)}.grid{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(300px,1fr);gap:22px}.panel{border:1px solid var(--line);background:var(--surface);border-radius:var(--radius);overflow:hidden}.panel-head{padding:20px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}h2{font-size:16px;letter-spacing:-.2px;margin:0;font-weight:600}.sub{font-size:11px;color:var(--muted);margin-top:3px}.count{color:var(--muted);font-size:12px}.filters{padding:15px 22px;display:flex;gap:9px;border-bottom:1px solid var(--line)}input,select{border:1px solid var(--line);color:var(--text);background:#0d1821;padding:9px 11px;border-radius:8px;min-width:0}input{width:100%}select{max-width:180px}.table-wrap{overflow:auto;max-height:500px}table{width:100%;border-collapse:collapse;white-space:nowrap}th{text-align:left;padding:12px 18px;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:1px;background:#101b24;position:sticky;top:0}td{padding:16px 18px;border-top:1px solid #20313c;font-size:12px}tbody tr{cursor:pointer}tbody tr:hover,tbody tr.selected{background:#192c36}tbody tr.selected td:first-child{box-shadow:inset 3px 0 var(--teal)}.robot-button{background:none;border:none;padding:0;font-weight:600;font-size:12px;color:var(--text)}.connection{font-size:10px;color:var(--muted);margin-top:3px}.badge{display:inline-flex;align-items:center;font-size:10px;letter-spacing:.6px;font-weight:650;border-radius:5px;padding:4px 7px}.NORMAL{background:#173e37;color:var(--teal)}.WARNING{background:#433620;color:var(--amber)}.CRITICAL{background:#45272f;color:var(--red)}.confidence{font-size:10px;color:var(--muted);margin-top:4px}.battery{display:flex;align-items:center;gap:8px}.battery-track{height:5px;width:45px;background:#2b3c48;border-radius:9px;overflow:hidden}.battery-fill{height:100%;background:var(--teal)}.empty{text-align:center;padding:56px 24px;color:var(--muted)}.empty strong{color:var(--text);display:block;font-size:16px;margin-bottom:7px}.side{display:grid;gap:22px;align-content:start}.map{display:block;width:100%;height:230px;background:#101c25}.map-labels{display:flex;gap:16px;padding:10px 22px 14px;color:var(--muted);font-size:10px}.service{padding:17px 22px;display:grid;grid-template-columns:1fr 1fr;gap:14px}.service-label{font-size:10px;color:var(--muted);margin-bottom:3px}.service-value{font-size:13px}.history{margin-top:22px}.history-controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:12px}.history-body{padding:18px 22px}.history-summary{display:flex;gap:28px;margin-bottom:18px;color:var(--muted);font-size:11px}.history-summary strong{display:block;color:var(--text);font-size:18px;font-weight:550}.chart-box{height:205px;position:relative}canvas{display:block;width:100%;height:100%}.chart-empty{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted)}footer{display:flex;justify-content:space-between;gap:18px;margin-top:22px;color:var(--muted);font-size:10px}.paused{color:var(--amber)}[hidden]{display:none!important}@media(max-width:1000px){.grid{grid-template-columns:1fr}.side{grid-template-columns:1fr 1fr}.stats{gap:10px}.stat{padding:16px}.heading{align-items:flex-start}h1{font-size:28px}}@media(max-width:650px){main{padding:22px 16px}.top{padding:15px 16px}.brand small{display:none}.top nav{gap:12px;font-size:11px}.heading{display:block}.live-controls{margin-top:17px}.stats{grid-template-columns:1fr 1fr}.stat-value{font-size:27px}.side{grid-template-columns:1fr}.panel-head{padding:16px}.filters{padding:12px 16px}.history .panel-head{align-items:flex-start;flex-direction:column}.history-summary{gap:16px}.history-body{padding:16px}.history-summary strong{font-size:16px}footer{flex-direction:column;gap:5px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
   </style>
 </head>
 <body>
-<header>
-  <div><h1>Cloud Fleet Dashboard</h1><div class="tag">ACI606 · starter</div></div>
-  <div id="status" class="tag">esperando telemetría...</div>
-</header>
+<header class="top"><div class="brand"><span class="mark" aria-hidden="true">⌁</span>FLEET <small>CENTRO DE OPERACIÓN</small></div><nav aria-label="Enlaces del servicio"><a href="/docs" target="_blank" rel="noopener">Explorar API ↗</a><a href="/metrics" target="_blank" rel="noopener">Ver métricas ↗</a></nav></header>
 <main>
-  <div id="cards" class="cards"></div>
+  <div class="heading"><div><div class="eyebrow">Vista general / Flota virtual</div><h1>Tu flota, en tiempo real.</h1><p>Supervisa la actividad y detecta qué robots necesitan atención.</p></div><div class="live-controls"><span class="live" id="live"><span class="dot"></span>Conectando</span><button id="pause" type="button" aria-pressed="false">Pausar</button></div></div>
+  <div class="banner" id="error" role="status" hidden></div>
+  <section class="stats" aria-label="Resumen de la flota">
+    <article class="stat"><div class="stat-label">Robots en línea</div><div class="stat-value teal" id="online">—</div><div class="stat-note" id="fleet-note">Esperando telemetría</div></article>
+    <article class="stat"><div class="stat-label">Condición crítica</div><div class="stat-value red" id="critical">—</div><div class="stat-note">Según la última predicción</div></article>
+    <article class="stat"><div class="stat-label">Batería media</div><div class="stat-value" id="battery">—</div><div class="stat-note">Última muestra de cada robot</div></article>
+    <article class="stat"><div class="stat-label">Muestras guardadas</div><div class="stat-value" id="samples">—</div><div class="stat-note">Historial acumulado de la flota</div></article>
+  </section>
+  <div class="grid">
+    <section class="panel"><div class="panel-head"><div><h2>Estado de los robots</h2><div class="sub">Selecciona un robot para explorar su historial</div></div><span class="count" id="robot-count">0 robots</span></div>
+      <div class="filters"><input type="search" id="search" placeholder="Buscar robot…" aria-label="Buscar robot"><select id="condition" aria-label="Filtrar condición"><option value="">Todos los estados</option><option>NORMAL</option><option>WARNING</option><option>CRITICAL</option></select></div>
+      <div class="table-wrap"><table><thead><tr><th scope="col">Robot</th><th scope="col">Condición</th><th scope="col">Batería</th><th scope="col">Temperatura</th><th scope="col">Velocidad</th></tr></thead><tbody id="rows"></tbody></table></div>
+      <div class="empty" id="empty"><strong>Esperando a la flota</strong>Los robots aparecerán cuando empiecen a enviar datos.</div>
+    </section>
+    <aside class="side">
+      <section class="panel"><div class="panel-head"><div><h2>Posición de la flota</h2><div class="sub">Área virtual de 10 × 10 unidades</div></div><span class="count">EN VIVO</span></div><svg class="map" id="map" viewBox="0 0 360 230" role="img" aria-label="Mapa de las últimas posiciones de los robots"><defs><pattern id="grid" width="30" height="19" patternUnits="userSpaceOnUse"><path d="M 30 0 L 0 0 0 19" fill="none" stroke="#243743" stroke-width=".7"/></pattern></defs><rect x="30" y="15" width="300" height="190" fill="url(#grid)" stroke="#324852"/><g id="dots"></g><text x="30" y="222" fill="#93a9b7" font-size="9">0, 0</text><text x="307" y="222" fill="#93a9b7" font-size="9">10, 0</text><text x="28" y="10" fill="#93a9b7" font-size="9">0, 10</text></svg><div class="map-labels"><span class="teal">● Normal</span><span style="color:var(--amber)">● Advertencia</span><span class="red">● Crítico</span></div></section>
+      <section class="panel"><div class="panel-head"><h2>Estado del servicio</h2><span id="api-status" class="badge">Conectando</span></div><div class="service"><div><div class="service-label">Tiempo activo</div><div class="service-value" id="uptime">—</div></div><div><div class="service-label">Inferencia media</div><div class="service-value" id="latency">—</div></div><div><div class="service-label">Solicitudes de predicción</div><div class="service-value" id="requests">—</div></div><div><div class="service-label">Solicitudes con error</div><div class="service-value" id="errors">—</div></div></div></section>
+    </aside>
+  </div>
+  <section class="panel history"><div class="panel-head"><div><h2 id="history-title">Historial del robot</h2><div class="sub" id="history-caption">Selecciona un robot de la flota</div></div><div class="history-controls"><select id="chart-feature" aria-label="Variable del historial"><option value="battery">Batería (%)</option><option value="motor_temp">Temperatura (°C)</option><option value="vibration">Vibración</option><option value="speed">Velocidad (u/s)</option></select><a id="download" hidden target="_blank" rel="noopener">Historial completo ↗</a></div></div><div class="history-body"><div class="history-summary"><div>Muestras totales<strong id="history-total">—</strong></div><div>Condición actual<strong id="history-state">—</strong></div><div>Última señal<strong id="history-time">—</strong></div></div><div class="chart-box"><canvas id="chart" role="img" aria-label="Gráfico de telemetría histórica"></canvas><div id="chart-empty" class="chart-empty">Aún no hay muestras para mostrar</div></div></div></section>
+  <footer><span>ACI606 · Cloud Fleet Challenge</span><span id="updated">Actualización automática cada 3 segundos</span></footer>
 </main>
 <script>
-const cards = document.getElementById('cards');
-const statusEl = document.getElementById('status');
-
-function card(r) {
-  const battery = Math.max(0, Math.min(100, Number(r.battery)));
-  return `<div class="card">
-    <div class="robot">${r.robot_id}</div>
-    <div class="row"><span>Battery</span><span>${battery.toFixed(1)} %</span></div>
-    <div class="bar"><div class="fill" style="width:${battery}%"></div></div>
-    <div class="row"><span>Speed</span><span>${Number(r.speed).toFixed(2)}</span></div>
-    <div class="row"><span>Motor temp.</span><span>${Number(r.motor_temp).toFixed(1)} °C</span></div>
-    <div class="row"><span>Vibration</span><span>${Number(r.vibration).toFixed(2)}</span></div>
-    <div class="row"><span>Obstacle</span><span>${Number(r.obstacle_distance).toFixed(2)} m</span></div>
-  </div>`;
-}
-
-async function refresh() {
-  try {
-    const res = await fetch('/robots');
-    const robots = await res.json();
-    statusEl.textContent = `${robots.length} robot(s) conectados`;
-    cards.innerHTML = robots.length ? robots.map(card).join('') : '<div class="empty">Ejecuta el simulador para comenzar a recibir robots.</div>';
-  } catch (err) {
-    statusEl.textContent = 'API no disponible';
+'use strict';
+const $=id=>document.getElementById(id), fmt=n=>new Intl.NumberFormat('es-CL').format(n);
+const palette={NORMAL:'#65d8bb',WARNING:'#f0bd68',CRITICAL:'#ff828b'};
+let fleet=[], selected=null, history=[], historyKey='', paused=false, busy=false;
+function text(id,value){$(id).textContent=value}
+function element(tag,content,className){const e=document.createElement(tag);if(content!==undefined)e.textContent=content;if(className)e.className=className;return e}
+async function get(path){const response=await fetch(path,{signal:AbortSignal.timeout(10000),cache:'no-store'});if(!response.ok)throw Error('HTTP '+response.status);return response.json()}
+function renderRows(){
+  const term=$('search').value.toLowerCase(),condition=$('condition').value;
+  const visible=fleet.filter(r=>r.robot_id.toLowerCase().includes(term)&&(!condition||r.predicted_status===condition));
+  $('rows').replaceChildren();text('robot-count',fmt(fleet.length)+' robots');
+  $('empty').hidden=visible.length>0;
+  if(fleet.length&&visible.length===0){$('empty').replaceChildren(element('strong','Sin coincidencias'),element('span','Prueba otra búsqueda o condición.'))}
+  else if(!fleet.length){$('empty').replaceChildren(element('strong','Esperando a la flota'),element('span','Los robots aparecerán cuando empiecen a enviar datos.'))}
+  for(const robot of visible){
+    const row=element('tr');if(robot.robot_id===selected)row.className='selected';
+    const name=element('td'),button=element('button',robot.robot_id,'robot-button');button.type='button';button.setAttribute('aria-label','Ver historial de '+robot.robot_id);
+    name.append(button,element('div',(robot.connected?'● En línea':'○ Sin conexión'),'connection'));row.append(name);
+    const status=element('td');status.append(element('span',robot.predicted_status,'badge '+robot.predicted_status),element('div',(robot.confidence*100).toFixed(1)+'% de confianza','confidence'));row.append(status);
+    const battery=element('td'),wrap=element('div',undefined,'battery'),track=element('div',undefined,'battery-track'),fill=element('div',undefined,'battery-fill');fill.style.width=robot.battery+'%';if(robot.battery<20)fill.style.background=palette.CRITICAL;track.append(fill);wrap.append(track,element('span',robot.battery.toFixed(1)+'%'));battery.append(wrap);row.append(battery,element('td',robot.motor_temp.toFixed(1)+' °C'),element('td',robot.speed.toFixed(2)+' u/s'));
+    row.onclick=()=>selectRobot(robot.robot_id);$('rows').append(row);
   }
 }
-refresh();
-setInterval(refresh, 1500);
+function renderMap(){
+  const svg='http://www.w3.org/2000/svg';$('dots').replaceChildren();
+  for(const r of fleet){const group=document.createElementNS(svg,'g'),circle=document.createElementNS(svg,'circle'),label=document.createElementNS(svg,'text'),title=document.createElementNS(svg,'title');
+    const x=30+Math.min(10,Math.max(0,r.x))*30,y=205-Math.min(10,Math.max(0,r.y))*19;
+    circle.setAttribute('cx',x);circle.setAttribute('cy',y);circle.setAttribute('r',r.robot_id===selected?'7':'5');circle.setAttribute('fill',palette[r.predicted_status]||'#93a9b7');circle.setAttribute('opacity',r.connected?'1':'.4');
+    title.textContent=r.robot_id+' · '+r.predicted_status;circle.append(title);label.setAttribute('x',Math.min(290,x+9));label.setAttribute('y',y-6);label.setAttribute('fill','#c4d6e0');label.setAttribute('font-size','9');label.textContent=r.robot_id.length>15?r.robot_id.slice(-12):r.robot_id;group.append(circle,label);$('dots').append(group);
+  }
+}
+async function selectRobot(id){if(selected!==id){history=[];historyKey='';text('history-title','Historial · '+id);text('history-caption','Cargando muestras…');drawChart()}selected=id;renderRows();renderMap();try{await loadHistory()}catch(error){$('error').hidden=false;text('error','No se pudo cargar el historial. Se reintentará en la próxima actualización.')}}
+async function loadHistory(){
+  const robot=fleet.find(r=>r.robot_id===selected);if(!robot)return;
+  const key=selected+':'+robot.sample_count;if(historyKey===key){renderHistory(robot);return}
+  const requested=selected;const data=await get('/robots/'+encodeURIComponent(requested)+'/history?limit=180&offset='+Math.max(0,robot.sample_count-180));
+  if(requested!==selected)return;history=data;historyKey=key;renderHistory(robot);
+}
+function renderHistory(robot){text('history-title','Historial · '+robot.robot_id);text('history-caption','Últimas '+history.length+' de '+fmt(robot.sample_count)+' muestras guardadas');text('history-total',fmt(robot.sample_count));text('history-state',robot.predicted_status);text('history-time',new Date(robot.last_seen*1000).toLocaleTimeString('es-CL'));$('download').hidden=false;$('download').href='/robots/'+encodeURIComponent(robot.robot_id)+'/history';drawChart()}
+function drawChart(){
+  const canvas=$('chart'),rect=canvas.getBoundingClientRect(),ratio=window.devicePixelRatio||1;canvas.width=rect.width*ratio;canvas.height=rect.height*ratio;
+  const ctx=canvas.getContext('2d');ctx.scale(ratio,ratio);const w=rect.width,h=rect.height,feature=$('chart-feature').value;
+  $('chart-empty').hidden=history.length>0;if(!history.length||w<100)return;
+  const values=history.map(r=>r[feature]);let low=Math.min(...values),high=Math.max(...values);const pad=Math.max((high-low)*.15,feature==='battery'?1:.1);low=Math.max(0,low-pad);high+=pad;
+  const left=45,top=15,right=w-15,bottom=h-30,px=i=>left+i/Math.max(1,values.length-1)*(right-left),py=v=>bottom-(v-low)/(high-low)*(bottom-top);
+  ctx.font='10px Segoe UI';ctx.textAlign='right';for(let i=0;i<=4;i++){const value=low+(high-low)*i/4,y=py(value);ctx.strokeStyle='#273844';ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(right,y);ctx.stroke();ctx.fillStyle='#93a9b7';ctx.fillText(value.toFixed(1),left-9,y+3)}
+  const gradient=ctx.createLinearGradient(0,top,0,bottom);gradient.addColorStop(0,'#65d8bb30');gradient.addColorStop(1,'#65d8bb00');ctx.beginPath();ctx.moveTo(left,bottom);values.forEach((v,i)=>ctx.lineTo(px(i),py(v)));ctx.lineTo(px(values.length-1),bottom);ctx.closePath();ctx.fillStyle=gradient;ctx.fill();
+  ctx.beginPath();values.forEach((v,i)=>i?ctx.lineTo(px(i),py(v)):ctx.moveTo(px(i),py(v)));ctx.strokeStyle='#65d8bb';ctx.lineWidth=2;ctx.stroke();if(values.length===1){ctx.beginPath();ctx.arc(px(0),py(values[0]),3,0,2*Math.PI);ctx.fillStyle='#65d8bb';ctx.fill()}
+  ctx.fillStyle='#93a9b7';ctx.textAlign='left';ctx.fillText(new Date(history[0].timestamp*1000).toLocaleTimeString('es-CL'),left,h-8);ctx.textAlign='right';ctx.fillText(new Date(history.at(-1).timestamp*1000).toLocaleTimeString('es-CL'),right,h-8);
+  canvas.setAttribute('aria-label',$('chart-feature').selectedOptions[0].text+' de '+selected+': '+values.length+' muestras; mínimo '+Math.min(...values).toFixed(2)+', máximo '+Math.max(...values).toFixed(2));
+}
+async function refresh(){
+  if(paused||busy)return;busy=true;
+  try{const [health,robots,metrics]=await Promise.all([get('/health'),get('/robots'),get('/metrics')]);fleet=robots;
+    text('online',fmt(fleet.filter(r=>r.connected).length));text('fleet-note',fmt(fleet.length)+' robots registrados');text('critical',fmt(fleet.filter(r=>r.predicted_status==='CRITICAL').length));
+    $('battery').replaceChildren(document.createTextNode(fleet.length?(fleet.reduce((n,r)=>n+r.battery,0)/fleet.length).toFixed(1):'—'),element('small',' %'));text('samples',fmt(metrics.stored_samples));
+    text('uptime',Math.floor(metrics.uptime_seconds/3600)+' h '+Math.floor(metrics.uptime_seconds%3600/60)+' min');text('latency',metrics.average_prediction_latency_ms.toFixed(2)+' ms');text('requests',fmt(metrics.prediction_requests));text('errors',fmt(metrics.errors));
+    text('api-status',health.status==='ok'?'Operativo':'Revisar');$('api-status').className='badge NORMAL';$('live').className='live';$('live').replaceChildren(element('span',undefined,'dot'),document.createTextNode('Actualizando en vivo'));$('error').hidden=true;
+    if(!selected&&fleet.length)selected=fleet[0].robot_id;renderRows();renderMap();await loadHistory();text('updated','Última actualización: '+new Date().toLocaleTimeString('es-CL'));
+  }catch(error){$('error').hidden=false;text('error','No se pudo actualizar la información. Se conservan los últimos datos y se reintentará automáticamente.');text('api-status','Sin conexión');$('api-status').className='badge CRITICAL';text('live','Conexión interrumpida');$('live').className='live paused'}finally{busy=false}
+}
+$('pause').onclick=()=>{paused=!paused;$('pause').setAttribute('aria-pressed',String(paused));text('pause',paused?'Reanudar':'Pausar');if(paused){text('live','Actualización en pausa');$('live').className='live paused'}else refresh()};
+$('search').addEventListener('input',renderRows);$('condition').addEventListener('change',renderRows);$('chart-feature').addEventListener('change',drawChart);window.addEventListener('resize',drawChart);
+refresh();setInterval(refresh,3000);
 </script>
 </body>
 </html>

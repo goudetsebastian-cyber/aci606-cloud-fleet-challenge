@@ -1,0 +1,72 @@
+{
+  "api_url": "http://127.0.0.1:8001",
+  "final": true,
+  "passed": true,
+  "health": {
+    "status": "ok",
+    "service": "aci606-cloud-fleet",
+    "version": "1.0.0",
+    "database": "postgresql",
+    "model_loaded": true,
+    "instance_id": "e61b038378b6482189e0c2a4197b054e",
+    "model_version": "v1-lr-39cbd0a465",
+    "utc": "2026-11-05T02:35:02.632530+00:00"
+  },
+  "checks": [
+    {
+      "method": "GET",
+      "path": "/health",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/telemetry",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/robots",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/robots/SMOKE-01/history",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/metrics",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/dashboard",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/predict",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/predict",
+      "status": 422
+    },
+    {
+      "method": "POST",
+      "path": "/telemetry",
+      "status": 422
+    },
+    {
+      "method": "POST",
+      "path": "/predict",
+      "status": 422
+    },
+    {
+      "method": "GET",
+      "path": "/health",
+      "status": 200
+    }
+  ]
+}

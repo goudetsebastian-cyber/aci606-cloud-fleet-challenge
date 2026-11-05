@@ -1,0 +1,11 @@
+{
+  "api_url": "http://127.0.0.1:8001",
+  "robot_id": "PERSIST-1793846110",
+  "count": 125,
+  "sha256": "ecae1690ccc5eab1531a57b7ed26754fb6447a803354b1b8d47ee24bf72f1f56",
+  "before_instance_id": "e61b038378b6482189e0c2a4197b054e",
+  "database": "postgresql",
+  "restart_verified": true,
+  "after_instance_id": "d81e3af3a7a440febd81488a58003136",
+  "verified_at_unix": 1793846453.1908872
+}
