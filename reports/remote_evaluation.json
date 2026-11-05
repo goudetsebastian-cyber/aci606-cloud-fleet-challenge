@@ -1,0 +1,38 @@
+{
+  "api_url": "https://aci606-cloud-fleet-sebit44s.onrender.com",
+  "seed": 9001,
+  "fleets": 4,
+  "workers": 8,
+  "scenario_shift": "new seeds/IDs; extra temperature noise (sd=.75), vibration x1.02, motor current x.98",
+  "requests": 512,
+  "successful": 512,
+  "errors": 0,
+  "macro_f1": 0.9266551285591683,
+  "baseline_macro_f1": 0.14314928425357873,
+  "baseline_class": "CRITICAL",
+  "client_latency_p50_ms": 197.18960000318475,
+  "client_latency_p95_ms": 275.3157249993819,
+  "labels": [
+    "NORMAL",
+    "WARNING",
+    "CRITICAL"
+  ],
+  "confusion_matrix": [
+    [
+      185,
+      8,
+      0
+    ],
+    [
+      8,
+      157,
+      14
+    ],
+    [
+      0,
+      7,
+      133
+    ]
+  ],
+  "passed": true
+}

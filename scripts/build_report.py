@@ -20,6 +20,7 @@ MUTED = colors.HexColor("#516979")
 PALE = colors.HexColor("#eaf4f3")
 LINE = colors.HexColor("#d8e3e8")
 WIDTH = A4[0] - 88
+REPORT_DATE = "5 de noviembre de 2026"
 
 
 def load(name, default=None):
@@ -112,7 +113,7 @@ def page_frame(canvas, doc):
     canvas.setFillColor(TEAL);canvas.rect(44,A4[1]-40,26,3,fill=1,stroke=0)
     canvas.setFont(BOLD,8);canvas.setFillColor(MUTED);canvas.drawString(79,A4[1]-40,"ACI606  /  INFORME TÉCNICO")
     canvas.setStrokeColor(LINE);canvas.line(44,43,A4[0]-44,43)
-    canvas.setFont(FONT,8);canvas.drawString(44,28,"Cloud Fleet Challenge · 4 de noviembre de 2026")
+    canvas.setFont(FONT,8);canvas.drawString(44,28,"Cloud Fleet Challenge · " + REPORT_DATE)
     canvas.drawRightString(A4[0]-44,28,f"{doc.page}")
     canvas.restoreState()
 
@@ -187,21 +188,23 @@ def build(output):
 
     next_page("Panel de operación")
     add(p("El panel consulta el servicio cada tres segundos. Incluye conexión, telemetría más reciente, condición predicha, confianza, batería media, posición y serie histórica por robot. Permite buscar, filtrar y pausar la actualización; el historial completo sigue disponible aunque el gráfico muestre las 180 muestras más recientes."))
-    add(picture("dashboard_desktop.png",width=484),p("Figura 4. Captura de la ejecución local con telemetría sintética. Los indicadores de conexión y errores reflejan el estado real del momento de captura. También se verificó el diseño móvil a 390 px.","SmallR"))
+    dashboard=load("dashboard_checks.json",{})
+    dashboard_place="servicio público de Render" if dashboard.get("capture_url", "").startswith("https://") else "servicio local"
+    add(picture("dashboard_desktop.png",width=484),p(f"Figura 4. Captura del {dashboard_place} con telemetría sintética. Los indicadores reflejan el estado real al capturar. También se verificó el diseño móvil a 390 px.","SmallR"))
 
     next_page("Verificación y evidencia medida")
     add(note(f"<b>{count} pruebas locales aprobadas.</b> Se comprueban contratos, 130 registros intactos tras una nueva instancia, concurrencia, datos fuera de orden, rechazos 422, fallos de base y separación de flotas."))
     section("Evaluación HTTP independiente")
     add(p("El cliente generó cuatro flotas nuevas con semilla 9001, identificadores distintos y leves cambios de sensores: ruido térmico adicional, vibración ×1,02 y corriente ×0,98. No se envían etiquetas al servicio. Estas flotas no participan en la elección del clasificador."))
-    add(table(["Medida", "Resultado local"],[
-        ("Predicciones / concurrencia",f"{local['requests']} solicitudes / {local['workers']} en paralelo"),
-        ("Solicitudes fallidas",str(local["errors"])),
-        ("F1 macro / línea base",f"{local['macro_f1']:.4f} / {local['baseline_macro_f1']:.4f}"),
-        ("Latencia p50 desde el cliente",f"{local['client_latency_p50_ms']:.2f} ms"),
-        ("Latencia p95 desde el cliente",f"{local['client_latency_p95_ms']:.2f} ms"),
-    ],[WIDTH*.6,WIDTH*.4]))
-    add(Spacer(1,9),p("La API se ejecutó en este equipo. Estas latencias incluyen la solicitud HTTP local, pero no representan la red hacia Render ni el arranque en frío del plan gratuito.","SmallR"))
-    section("Persistencia: dos ambientes distintos")
+    add(table(["Medida", "API local", "Render público"],[
+        ("Predicciones / concurrencia",f"{local['requests']} / {local['workers']} en paralelo",f"{remote['requests']} / {remote['workers']} en paralelo" if remote else "Pendiente"),
+        ("Solicitudes fallidas",str(local["errors"]),str(remote["errors"]) if remote else "Pendiente"),
+        ("F1 macro / línea base",f"{local['macro_f1']:.4f} / {local['baseline_macro_f1']:.4f}",f"{remote['macro_f1']:.4f} / {remote['baseline_macro_f1']:.4f}" if remote else "Pendiente"),
+        ("Latencia p50 cliente",f"{local['client_latency_p50_ms']:.2f} ms",f"{remote['client_latency_p50_ms']:.2f} ms" if remote else "Pendiente"),
+        ("Latencia p95 cliente",f"{local['client_latency_p95_ms']:.2f} ms",f"{remote['client_latency_p95_ms']:.2f} ms" if remote else "Pendiente"),
+    ],[WIDTH*.43,WIDTH*.285,WIDTH*.285]))
+    add(Spacer(1,9),p("La columna local mide HTTP en el equipo de desarrollo. La columna pública incluye la red hacia Render con el servicio activo; no incluye un arranque en frío. La coincidencia de F1 es esperable: ambas evalúan el mismo modelo y las mismas muestras independientes.","SmallR"))
+    section("Persistencia antes y después del reinicio")
     add(table(["Ambiente", "Prueba / estado"],[
         ("SQLite local","130 muestras preservadas al cerrar y crear una nueva instancia del servicio. Comparación completa de registros aprobada."),
         ("PostgreSQL en Neon; API local", "125 muestras y hash idénticos tras reiniciar el proceso; instance_id cambió." if neon.get("restart_verified") else "Base creada y conexión comprobada; prueba de 125 muestras y reinicio en curso o pendiente."),
@@ -209,6 +212,8 @@ def build(output):
     ],[174,WIDTH-174]))
     section("Comprobación del panel")
     add(p("Un navegador aislado comprobó datos en vivo, selección de historial, búsqueda, cambio de variable, pausa/reanudación y ausencia de errores JavaScript. Se revisaron capturas de escritorio y móvil y se comprobó que la página no desbordara horizontalmente."))
+    if load("other_device_check.json",{}).get("verified"):
+        add(p("El estudiante confirmó la apertura del panel público desde otro dispositivo el 5 de noviembre de 2026. La confirmación está registrada en other_device_check.json.","SmallR"))
     add(p("Archivos de evidencia: pytest-results.xml, local_smoke.json, local_unseen_evaluation.json, dashboard_checks.json y, cuando corresponda, neon_persistence_snapshot.json y public_smoke.json. Los archivos se guardan en reports/.","SmallR"))
 
     next_page("Despliegue, entrega y defensa")
@@ -218,8 +223,12 @@ def build(output):
         add(p(f"<b>Repositorio:</b> <link href='{escape(deployment['repository_url'])}' color='#087e76'>{escape(deployment['repository_url'])}</link>","SmallR"))
     add(note("<b>Estado público: verificado.</b> La URL está registrada en el README con evidencia del contrato, calidad y reinicio." if ready else "<b>Estado público: pendiente.</b> No se presenta una dirección propuesta como URL activa. El estado comprobado se conserva en reports/deployment_status.json.",PALE if ready else colors.HexColor("#fff3df")))
     section("Configuración y cierre de aceptación")
-    add(p("Render ejecutará FastAPI con Uvicorn en 0.0.0.0 y el puerto PORT. El modelo está versionado y el build instala requirements.txt. DATABASE_URL se guarda como secreto del servicio; los datos viven en Neon, AWS Oregon. La rama de funcionalidad y el merge a main conservan la trazabilidad real. [4, 5, 6]"))
-    add(p("Para cerrar el despliegue: publicar main en el repositorio propio, conectar Render al proveedor Git, crear el servicio Free, configurar el secreto y esperar Live. Después ejecutar smoke_test.py --final, evaluate_remote.py y las fases before/after de check_persistence.py alrededor de un reinicio desde Render. Abrir el panel desde otro dispositivo y registrar la URL real en el README."))
+    add(p("Render ejecuta FastAPI con Uvicorn en 0.0.0.0 y el puerto PORT. El modelo está versionado y el build instala requirements.txt. DATABASE_URL se guarda como secreto del servicio; los datos viven en Neon, AWS Oregon. La rama de funcionalidad y el merge a main conservan la trazabilidad real. [4, 5, 6]"))
+    if ready:
+        add(p("El servicio Free se creó en el espacio de trabajo confirmado del estudiante, desde main, con despliegue automático habilitado. Se verificaron smoke_test.py --final, una flota independiente por HTTP y las fases before/after de persistencia alrededor de un redespliegue del mismo commit en Render. El cambio de instance_id confirma el reinicio y la comparación de hash confirma las 125 muestras intactas. La URL real está registrada en el README."))
+        add(p("La instancia creada mediante el conector mantiene el chequeo TCP predeterminado de Render; /health consulta PostgreSQL y el modelo para la verificación operativa. render.yaml incluye /health como chequeo HTTP para recrear el servicio mediante Blueprint.","SmallR"))
+    else:
+        add(p("Para cerrar el despliegue: publicar main en el repositorio propio, conectar Render al proveedor Git, crear el servicio Free, configurar el secreto y esperar Live. Después ejecutar smoke_test.py --final, evaluate_remote.py y las fases before/after de check_persistence.py alrededor de un reinicio desde Render. Registrar la URL real en el README."))
     add(p("El plan gratuito puede suspender el servicio tras 15 minutos sin tráfico y tardar alrededor de un minuto en arrancar. La evaluación se prepara abriendo /health y activando la flota. El disco local es efímero y no contiene el historial cloud. [5]"))
     section("Defensa técnica")
     add(p("Demostrar el recorrido de una muestra, explicar por qué se separan las flotas, comparar F1 macro con la línea base y mostrar un rechazo 422 seguido de un servicio operativo. En el reinicio, exigir cambio de instance_id y conservación de más de 100 registros. docs/DEFENSA.md contiene el guion, la secuencia y respuestas a preguntas probables."))
@@ -230,7 +239,7 @@ def build(output):
         "[3] scikit-learn. GroupShuffleSplit y validación por grupos. scikit-learn.org/stable/modules/cross_validation.html.",
         "[4] FastAPI en Render: render.com/docs/deploy-fastapi.",
         "[5] Render. Blueprint y plan gratuito: render.com/docs/blueprint-spec; render.com/docs/free.",
-        "[6] Neon. Planes y PostgreSQL gestionado: neon.com/docs/introduction/plans. Consultas web: 4 de noviembre de 2026.",
+        "[6] Neon. Planes y PostgreSQL gestionado: neon.com/docs/introduction/plans. Consultas web: 4 y 5 de noviembre de 2026.",
     ]
     add(*(p(escape(ref),"SmallR") for ref in refs))
     output.parent.mkdir(parents=True,exist_ok=True)

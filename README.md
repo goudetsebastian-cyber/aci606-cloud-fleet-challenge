@@ -3,8 +3,11 @@
 Plataforma de flotas desarrollada sobre el [starter del docente](https://github.com/DrOscarL/aci606-cloud-fleet-challenge) para el Ejercicio 4: telemetría persistente, clasificación de condición, panel de operación y métricas.
 
 <!-- deployment:start -->
-**Implementación en el repositorio del estudiante y base de Neon verificadas. Publicación PaaS pendiente de completar el acceso a Render.**
-El contrato y el reinicio se comprobaron con la API local conectada a PostgreSQL en Neon; aún no existe una URL pública comprobada. Consultar [el estado de despliegue](reports/deployment_status.json).
+Servicio: **[https://aci606-cloud-fleet-sebit44s.onrender.com](https://aci606-cloud-fleet-sebit44s.onrender.com)** · [Panel](https://aci606-cloud-fleet-sebit44s.onrender.com/dashboard) · [API](https://aci606-cloud-fleet-sebit44s.onrender.com/docs)
+
+Repositorio: [https://github.com/goudetsebastian-cyber/aci606-cloud-fleet-challenge](https://github.com/goudetsebastian-cyber/aci606-cloud-fleet-challenge)
+
+Verificación pública: pendiente de completar pruebas; revisar reports/deployment_status.json.
 <!-- deployment:end -->
 
 ![Panel de operación con datos sintéticos](reports/dashboard_desktop.png)
@@ -39,6 +42,8 @@ En otra consola:
 ```
 
 Abrir [el panel local](http://127.0.0.1:8000/dashboard) o [la documentación interactiva](http://127.0.0.1:8000/docs). En este equipo, `VER_DEMO.cmd` abre una demostración con el entorno ya preparado; la ventana permite detener los procesos que inició.
+
+Para la defensa en la nube, `VER_DEMO_NUBE.cmd` abre el panel público y conecta seis robots al servicio de Render. Mantener abierta su ventana durante la demostración; pulsar Enter detiene únicamente esos robots.
 
 En Linux/macOS, los equivalentes son `python3 -m venv .venv` y `.venv/bin/python` en los demás comandos. No es necesario activar el entorno. El modelo entrenado está incluido; no hace falta entrenarlo para iniciar la API.
 
@@ -104,6 +109,8 @@ Para regenerar el informe técnico PDF, instalar `requirements-report.txt` y eje
 ```
 
 El test de servicio verifica el contrato, 130 muestras intactas tras crear una instancia nueva, concurrencia, muestras fuera de orden, errores de validación, NaN e infinito y fallos de base. La evaluación por HTTP usa 512 muestras de cuatro flotas nuevas, ocho solicitudes concurrentes y leves cambios en los sensores. Los resultados locales son evidencia local; no se presentan como latencia de internet.
+
+En la URL pública de Render: **512/512 respuestas válidas, cero solicitudes fallidas, F1 macro 0,9267 y p95 de 275,32 ms** desde el cliente. Se verificaron 125 muestras idénticas después de redesplegar el mismo commit, con cambio de `instance_id`. El estudiante confirmó la apertura desde otro dispositivo. La evidencia está en `reports/remote_evaluation.json`, `reports/persistence_snapshot.json` y `reports/other_device_check.json`.
 
 `/metrics` cuenta intentos válidos e inválidos de telemetría y predicción. Las inferencias automáticas de ingesta se distinguen de `/predict`. La latencia media interna incluye ambas; p50/p95 usan las últimas 2.000 inferencias. Los contadores y el uptime corresponden al proceso y se reinician; muestras, predicciones e historial sobreviven en la base. Un robot se considera conectado si envió datos en los últimos 30 segundos.
 

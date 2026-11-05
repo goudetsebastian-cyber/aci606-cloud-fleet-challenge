@@ -25,6 +25,8 @@ if __name__ == "__main__":
     smoke = ROOT / "reports/public_smoke.json"
     persistence = ROOT / "reports/persistence_snapshot.json"
     evaluation = ROOT / "reports/remote_evaluation.json"
+    automatic = ROOT / "reports/autodeploy_check.json"
+    other_device = ROOT / "reports/other_device_check.json"
     def verified(path, field):
         if not path.is_file():
             return False
@@ -33,8 +35,11 @@ if __name__ == "__main__":
     contract = verified(smoke, "passed")
     restart = verified(persistence, "restart_verified")
     quality = verified(evaluation, "passed")
-    complete = contract and restart and quality
-    status = {"status": "verified" if complete else "deployed_pending_verification", "public_url": base, "repository_url": args.repository, "platform": "Render", "data_location": "Neon PostgreSQL", "public_contract_verified": contract, "public_restart_verified": restart, "public_quality_verified": quality}
+    auto = verified(automatic, "passed")
+    device_data = json.loads(other_device.read_text(encoding="utf-8")) if other_device.is_file() else {}
+    device = device_data.get("verified") is True and device_data.get("public_url") == base + "/dashboard"
+    complete = contract and restart and quality and auto and device
+    status = {"status": "verified" if complete else "deployed_pending_verification", "public_url": base, "repository_url": args.repository, "platform": "Render", "data_location": "Neon PostgreSQL", "public_contract_verified": contract, "public_restart_verified": restart, "public_quality_verified": quality, "auto_deploy_verified": auto, "other_device_verified": device}
     (ROOT / "reports/deployment_status.json").write_text(json.dumps(status, ensure_ascii=False, indent=2), encoding="utf-8")
     readme = ROOT / "README.md"
     content = readme.read_text(encoding="utf-8")

@@ -1,13 +1,12 @@
 {
-  "status": "database_ready_pending_paas",
-  "public_url": null,
+  "status": "deployed_pending_verification",
+  "public_url": "https://aci606-cloud-fleet-sebit44s.onrender.com",
   "repository_url": "https://github.com/goudetsebastian-cyber/aci606-cloud-fleet-challenge",
-  "platform": "Render (prepared)",
-  "data_location": "Neon PostgreSQL 17, AWS Oregon",
-  "neon_project_id": "super-meadow-50916262",
-  "database_connection_verified": true,
-  "database_restart_verified_with_local_api": true,
-  "public_contract_verified": false,
-  "public_restart_verified": false,
-  "note": "GitHub is connected and the implementation is being published. Neon schema, pooled and direct connections and 125 records across a local API restart are verified. Public PaaS deployment is pending Render access."
+  "platform": "Render",
+  "data_location": "Neon PostgreSQL",
+  "public_contract_verified": true,
+  "public_restart_verified": true,
+  "public_quality_verified": true,
+  "auto_deploy_verified": false,
+  "other_device_verified": true
 }

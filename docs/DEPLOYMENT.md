@@ -1,6 +1,8 @@
 # Publicación en Render y Neon
 
-La configuración está preparada en `render.yaml`. Las cuentas, el repositorio del estudiante y la base gestionada se deben vincular antes de verificar una URL pública. El estado comprobado se registra en `reports/deployment_status.json`.
+Servicio publicado: [panel Cloud Fleet](https://aci606-cloud-fleet-sebit44s.onrender.com/dashboard). Repositorio: [solución del estudiante](https://github.com/goudetsebastian-cyber/aci606-cloud-fleet-challenge). Los resultados comprobados están en `reports/deployment_status.json`.
+
+La instancia actual fue creada directamente en Render con el plan Free y los mismos comandos y variables declarados en `render.yaml`. Usa el chequeo TCP predeterminado de Render; `/health` comprueba la disponibilidad de PostgreSQL y el modelo. Al recrear el servicio mediante Blueprint, `healthCheckPath: /health` activa la comprobación HTTP. Los pasos siguientes permiten reproducir la publicación.
 
 ## 1. GitHub
 
@@ -79,7 +81,9 @@ Ejecutar el simulador hacia la URL pública y abrir `/dashboard` desde otro equi
 python simulator/fleet_simulator.py --api https://SERVICIO.onrender.com --robots 6
 ```
 
-Registrar la URL y plataforma con `scripts/record_deployment.py` después de ejecutar estas pruebas. Ese comando comprueba `/health` y exige PostgreSQL; **no sustituye** las pruebas de calidad y reinicio.
+Comprobar también que un nuevo commit a `main` genere un deploy sin pulsar Manual Deploy. Render necesita las credenciales Git de la cuenta y permiso sobre el repositorio. Guardar esa comprobación en `reports/autodeploy_check.json` y la confirmación del acceso desde otro dispositivo en `reports/other_device_check.json`.
+
+Registrar la URL y plataforma con `scripts/record_deployment.py` después de ejecutar las pruebas. Ese comando comprueba `/health`, exige PostgreSQL y reúne los estados de contrato, calidad, reinicio, actualización automática y otro dispositivo; **no sustituye** esas verificaciones.
 
 ## Límites de la modalidad gratuita
 
@@ -87,7 +91,7 @@ Render suspende el servicio tras 15 minutos sin tráfico; su siguiente arranque 
 
 Neon Free suspende el cómputo tras inactividad y tiene cuotas. Revisar los valores actuales en las páginas oficiales al crear la cuenta. Este proyecto no necesita contratar planes de pago.
 
-Fuentes consultadas el 4 de noviembre de 2026:
+Fuentes consultadas el 4 y 5 de noviembre de 2026:
 
 - [Render: FastAPI](https://render.com/docs/deploy-fastapi)
 - [Render: Blueprint](https://render.com/docs/blueprint-spec)
