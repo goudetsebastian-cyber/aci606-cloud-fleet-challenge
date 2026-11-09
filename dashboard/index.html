@@ -67,7 +67,7 @@ const palette={NORMAL:'#247058',WARNING:'#886019',CRITICAL:'#b14250'};
 let fleet=[], selected=null, history=[], historyKey='', paused=false, busy=false;
 function text(id,value){$(id).textContent=value}
 function element(tag,content,className){const e=document.createElement(tag);if(content!==undefined)e.textContent=content;if(className)e.className=className;return e}
-async function get(path){const response=await fetch(path,{signal:AbortSignal.timeout(10000),cache:'no-store'});if(!response.ok)throw Error('HTTP '+response.status);return response.json()}
+async function get(path){const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),45000);try{const response=await fetch(path,{signal:controller.signal,cache:'no-store'});if(!response.ok)throw Error('HTTP '+response.status);return await response.json()}finally{clearTimeout(timer)}}
 function renderRows(){
   const term=$('search').value.toLowerCase(),condition=$('condition').value;
   const visible=fleet.filter(r=>r.robot_id.toLowerCase().includes(term)&&(!condition||r.predicted_status===condition));
@@ -110,12 +110,12 @@ function drawChart(){
   ctx.font='10px Segoe UI';ctx.textAlign='right';for(let i=0;i<=4;i++){const value=low+(high-low)*i/4,y=py(value);ctx.strokeStyle='#d7e1ee';ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(right,y);ctx.stroke();ctx.fillStyle='#526780';ctx.fillText(value.toFixed(1),left-9,y+3)}
   const gradient=ctx.createLinearGradient(0,top,0,bottom);gradient.addColorStop(0,'#365f8f30');gradient.addColorStop(1,'#365f8f00');ctx.beginPath();ctx.moveTo(left,bottom);values.forEach((v,i)=>ctx.lineTo(px(i),py(v)));ctx.lineTo(px(values.length-1),bottom);ctx.closePath();ctx.fillStyle=gradient;ctx.fill();
   ctx.beginPath();values.forEach((v,i)=>i?ctx.lineTo(px(i),py(v)):ctx.moveTo(px(i),py(v)));ctx.strokeStyle='#365f8f';ctx.lineWidth=2;ctx.stroke();if(values.length===1){ctx.beginPath();ctx.arc(px(0),py(values[0]),3,0,2*Math.PI);ctx.fillStyle='#365f8f';ctx.fill()}
-  ctx.fillStyle='#526780';ctx.textAlign='left';ctx.fillText(new Date(history[0].timestamp*1000).toLocaleTimeString('es-CL'),left,h-8);ctx.textAlign='right';ctx.fillText(new Date(history.at(-1).timestamp*1000).toLocaleTimeString('es-CL'),right,h-8);
+  ctx.fillStyle='#526780';ctx.textAlign='left';ctx.fillText(new Date(history[0].timestamp*1000).toLocaleTimeString('es-CL'),left,h-8);ctx.textAlign='right';ctx.fillText(new Date(history[history.length-1].timestamp*1000).toLocaleTimeString('es-CL'),right,h-8);
   canvas.setAttribute('aria-label',$('chart-feature').selectedOptions[0].text+' de '+selected+': '+values.length+' muestras; mínimo '+Math.min(...values).toFixed(2)+', máximo '+Math.max(...values).toFixed(2));
 }
 async function refresh(){
   if(paused||busy)return;busy=true;
-  try{const [health,robots,metrics]=await Promise.all([get('/health'),get('/robots'),get('/metrics')]);fleet=robots;
+  try{const [health,robots,metrics]=await Promise.all([get('/health'),get('/robots'),get('/metrics')]);fleet=robots.sort((a,b)=>Number(b.connected)-Number(a.connected)||b.last_seen-a.last_seen);
     text('online',fmt(fleet.filter(r=>r.connected).length));text('fleet-note',fmt(fleet.length)+' robots registrados');text('critical',fmt(fleet.filter(r=>r.predicted_status==='CRITICAL').length));
     $('battery').replaceChildren(document.createTextNode(fleet.length?(fleet.reduce((n,r)=>n+r.battery,0)/fleet.length).toFixed(1):'—'),element('small',' %'));text('samples',fmt(metrics.stored_samples));
     text('uptime',Math.floor(metrics.uptime_seconds/3600)+' h '+Math.floor(metrics.uptime_seconds%3600/60)+' min');text('latency',metrics.average_prediction_latency_ms.toFixed(2)+' ms');text('requests',fmt(metrics.prediction_requests));text('errors',fmt(metrics.errors));
