@@ -16,6 +16,10 @@ En local se admite SQLite con WAL y timeout de 30 s para desarrollar sin una cue
 
 La ingesta tiene semántica de una fila por POST aceptado. Reenviar una misma muestra puede generar otra fila: el contrato no incluye un identificador idempotente. No se elimina historia al desconectar robots. El endpoint público no tiene límite fijo; el panel solicita hasta 180 muestras recientes usando paginación.
 
+## Cliente de demostración en el navegador
+
+El panel permite iniciar una ejecución de seis robots, limitada a dos minutos. `GET /demo/scenario` genera 40 rondas con el simulador original de `simulator/core.py`, sin escribir en la base. El navegador asigna identificadores propios y timestamps actuales, y envía cada muestra mediante `POST /telemetry`. La validación, la inferencia y la transacción son las mismas de los clientes externos. El cliente detiene sus envíos al finalizar, al pulsar Detener o al cerrar la página. El historial ya confirmado permanece en PostgreSQL.
+
 ## Inferencia
 
 El artefacto de confianza se carga una vez en el ciclo de vida del servicio. Nunca se aceptan modelos subidos por clientes. El bundle incluye pipeline, orden de las variables, versión y métricas. El entrenamiento usa GroupShuffleSplit y GroupKFold; el modelo final servido solo ha visto las 48 flotas de entrenamiento. Identificadores, tiempos y posiciones no son variables predictoras.

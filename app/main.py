@@ -11,6 +11,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.concurrency import run_in_threadpool
 from app.db import Storage
+from app.demo import make_demo_scenario
 from app.inference import Predictor
 from app.observability import Metrics
 from app.schemas import Prediction, Telemetry
@@ -119,6 +120,10 @@ def create_app(database_url: str | None = None, model_path: str | None = None) -
     @api.get("/dashboard", response_class=HTMLResponse)
     def dashboard() -> str:
         return (ROOT / "dashboard/index.html").read_text(encoding="utf-8")
+
+    @api.get("/demo/scenario", include_in_schema=False)
+    def demo_scenario() -> dict:
+        return make_demo_scenario()
 
     return api
 

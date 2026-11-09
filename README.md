@@ -4,6 +4,10 @@ Plataforma de flotas desarrollada sobre el [starter del docente](https://github.
 
 El panel utiliza superficies blancas, azul marino suave y textos de alto contraste. El mapa, los gráficos y las etiquetas de condición están adaptados al tema claro.
 
+**Para abrir la demostración desde cualquier computador o celular**, entrar al [panel público](https://aci606-cloud-fleet-sebit44s.onrender.com/dashboard) y pulsar **Iniciar demostración**. El navegador envía mediciones de seis robots durante dos minutos. Se puede detener con el mismo botón o cerrando la pestaña. Las muestras y sus predicciones quedan guardadas en el historial.
+
+El botón usa un escenario generado con `simulator/core.py` y envía las muestras a `/telemetry`. Cada ejecución recibe identificadores propios. El panel incluye acceso a la API, las métricas y el código en GitHub.
+
 <!-- deployment:start -->
 Servicio: **[https://aci606-cloud-fleet-sebit44s.onrender.com](https://aci606-cloud-fleet-sebit44s.onrender.com)** · [Panel](https://aci606-cloud-fleet-sebit44s.onrender.com/dashboard) · [API](https://aci606-cloud-fleet-sebit44s.onrender.com/docs)
 

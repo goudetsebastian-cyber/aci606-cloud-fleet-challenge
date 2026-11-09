@@ -15,7 +15,7 @@ Solo afirmar que la publicación y su reinicio están verificados después de co
 ## Demostración sugerida (5 a 7 minutos)
 
 1. Abrir `/health`: mostrar PostgreSQL, modelo y `instance_id`.
-2. Enviar telemetría desde el simulador y abrir `/dashboard`; mostrar robots conectados, condiciones y batería.
+2. Abrir `/dashboard` y pulsar **Iniciar demostración**. Se activan seis robots durante dos minutos desde el navegador. Mostrar condiciones, batería e historial. El botón **Detener demostración** y el cierre de la pestaña detienen ese cliente. El lanzador del simulador de consola sigue disponible para las pruebas de carga y clientes externos.
 3. Seleccionar un robot, cambiar la variable del gráfico y abrir el historial completo.
 4. En `/docs`, ejecutar `/predict` con una muestra y explicar los cinco campos obligatorios. `confidence` es probabilidad estimada, no una garantía de calibración.
 5. Enviar una batería fuera de rango: mostrar 422 y confirmar que `/health` sigue respondiendo.

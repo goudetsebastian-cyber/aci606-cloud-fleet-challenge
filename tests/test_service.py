@@ -7,6 +7,7 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.exc import OperationalError
 from app.main import create_app
+from app.schemas import Telemetry
 
 ROOT = Path(__file__).resolve().parents[1]
 SAMPLE = {"robot_id": "TEST-01", "timestamp": 1780000000.0, "x": 4.21, "y": 7.82, "speed": .63, "battery": 71., "motor_temp": 48.2, "vibration": .43, "motor_current": 3.7, "obstacle_distance": .42}
@@ -37,6 +38,15 @@ def test_complete_contract_and_true_model(client):
     metrics = client.get("/metrics").json()
     assert metrics["prediction_requests"] == 1 and metrics["telemetry_requests"] == 1
     assert metrics["inferences_completed"] == 2 and metrics["stored_samples"] == 1
+    scenario = client.get("/demo/scenario").json()
+    assert scenario["duration_seconds"] == 120 and scenario["interval_seconds"] == 3
+    assert len(scenario["frames"]) == 40
+    for frame in scenario["frames"]:
+        assert len(frame) == 6
+        assert {sample["robot_id"] for sample in frame} == {f"R{i:02d}" for i in range(1, 7)}
+        for sample in frame:
+            Telemetry.model_validate(sample)
+    assert client.get("/metrics").json()["stored_samples"] == 1
 
 
 def test_more_than_100_samples_survive_a_new_service_instance(tmp_path):
