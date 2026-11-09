@@ -19,7 +19,7 @@ Solo afirmar que la publicación y su reinicio están verificados después de co
 3. Seleccionar un robot, cambiar la variable del gráfico y abrir el historial completo.
 4. Abrir **Pruebas para la presentación** en el panel y pulsar **Obtener predicción**. Mostrar HTTP 200 y los cinco campos obligatorios. `confidence` es probabilidad estimada, no una garantía de calibración.
 5. Pulsar **Probar dato inválido** para enviar una batería fuera de rango y mostrar HTTP 422.
-6. Pulsar **Guardar 125 muestras** y esperar la confirmación. Abrir Render desde el enlace del panel y usar **Manual Deploy > Restart service**. Cuando ese reinicio termine en Live, volver al panel y pulsar **Verificar tras reinicio**. La verificación exige un identificador de arranque nuevo y el mismo hash de las 125 muestras. La referencia se conserva en el mismo navegador si se recarga el panel. El programa `tests/check_persistence.py` mantiene la alternativa por consola.
+6. Pulsar **Guardar 125 muestras** y esperar la confirmación. Abrir Render desde el enlace del panel y usar **Manual Deploy > Restart service**. Cuando ese reinicio termine en Live, volver al panel y pulsar **Verificar tras reinicio**. La verificación exige un identificador de arranque nuevo y el mismo hash de las 125 muestras. La referencia se conserva en PostgreSQL. Desde otro navegador, pulsa **Recuperar pruebas**, selecciona la prueba guardada y verifica; también se puede abrir **Enlace de esta prueba**. El programa `tests/check_persistence.py` mantiene la alternativa por consola.
 7. Desplegar **Ver métricas completas del servicio** y explicar solicitudes, errores, latencia y tiempo activo. Los contadores se reinician con el proceso; el historial permanece en PostgreSQL.
 
 ## Preguntas probables y respuestas

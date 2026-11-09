@@ -1,0 +1,54 @@
+{
+  "passed": true,
+  "checked_at_utc": "2026-11-09T20:25:10.041448+00:00",
+  "api_url": "https://aci606-cloud-fleet-sebit44s.onrender.com",
+  "app_commit": "35eaedbcce2b13ea49dd7ddbf15077ef4bc5be9b",
+  "service_tests_passed": 46,
+  "browser": "Chrome, independent desktop and mobile profiles",
+  "restrictions_tested": [
+    "localStorage get/set blocked",
+    "crypto.subtle unavailable",
+    "crypto.randomUUID unavailable",
+    "AbortSignal.timeout unavailable",
+    "original analytics/API paths blocked",
+    "proof list GET fails immediately after successful save"
+  ],
+  "checks": [
+    "live dashboard",
+    "demo start/stop",
+    "history",
+    "all chart variables",
+    "search",
+    "condition filter",
+    "pause/resume",
+    "prediction HTTP 200",
+    "invalid battery HTTP 422",
+    "125 samples saved atomically",
+    "cross-profile reference recovery",
+    "reference restored after reload without local storage",
+    "no duplicated samples on operation replay",
+    "transaction rollback on failed reference insert",
+    "new server instance after Render redeploy",
+    "identical 125 samples after real Render restart",
+    "mobile layout without page overflow",
+    "no JavaScript errors"
+  ],
+  "proof": {
+    "proof_id": "80f272fbdd3fecd6f1a666eaf535335a",
+    "robot_id": "PERSIST-WEB-80f272fbdd3fecd6f1a666eaf535335a",
+    "count": 125,
+    "sha256": "c36fdde76c573f66ad40e8a753e81b762fc5532536040872fdffae9bc32d26b1",
+    "before_instance_id": "e15838ef6cbf4ef1947aa8344843c99b",
+    "created_at": 1794255661.3717725,
+    "after_instance_id": "67a9cbe4102248ccb0bd0a9bdcc6e928",
+    "intact": true,
+    "restarted": true,
+    "verified": true
+  },
+  "restart_deploy": "dep-dbp2mggn74is73eq05fg",
+  "direct_database_check": {
+    "reference_count": 125,
+    "stored_samples": 125,
+    "sha256": "c36fdde76c573f66ad40e8a753e81b762fc5532536040872fdffae9bc32d26b1"
+  }
+}
