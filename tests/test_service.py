@@ -62,6 +62,20 @@ def test_more_than_100_samples_survive_a_new_service_instance(tmp_path):
         assert len(restarted.get("/robots/TEST-01/history?limit=10&offset=120").json()) == 10
 
 
+def test_dashboard_data_contains_live_persisted_rows_without_tracking_requests(client):
+    assert client.get("/dashboard/data").json()["robots"] == []
+    assert client.post("/telemetry", json=SAMPLE).status_code == 200
+    response = client.get("/dashboard/data")
+    assert response.status_code == 200
+    assert response.headers["cache-control"] == "no-store"
+    data = response.json()
+    assert data["health"]["status"] == "ok"
+    assert data["robots"][0]["robot_id"] == SAMPLE["robot_id"]
+    assert data["robots"][0]["connected"] is True
+    assert data["metrics"]["stored_samples"] == 1
+    assert data["metrics"]["online_robots"] == 1
+
+
 @pytest.mark.parametrize("path", ["/telemetry", "/predict"])
 @pytest.mark.parametrize("change", [
     {"battery": -1}, {"battery": 101}, {"speed": -1}, {"vibration": -1},

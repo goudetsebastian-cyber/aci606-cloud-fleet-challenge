@@ -115,7 +115,7 @@ function drawChart(){
 }
 async function refresh(){
   if(paused||busy)return;busy=true;
-  try{const [health,robots,metrics]=await Promise.all([get('/health'),get('/robots'),get('/metrics')]);fleet=robots.sort((a,b)=>Number(b.connected)-Number(a.connected)||b.last_seen-a.last_seen);
+  try{const {health,robots,metrics}=await get('/dashboard/data');fleet=robots.sort((a,b)=>Number(b.connected)-Number(a.connected)||b.last_seen-a.last_seen);
     text('online',fmt(fleet.filter(r=>r.connected).length));text('fleet-note',fmt(fleet.length)+' robots registrados');text('critical',fmt(fleet.filter(r=>r.predicted_status==='CRITICAL').length));
     $('battery').replaceChildren(document.createTextNode(fleet.length?(fleet.reduce((n,r)=>n+r.battery,0)/fleet.length).toFixed(1):'—'),element('small',' %'));text('samples',fmt(metrics.stored_samples));
     text('uptime',Math.floor(metrics.uptime_seconds/3600)+' h '+Math.floor(metrics.uptime_seconds%3600/60)+' min');text('latency',metrics.average_prediction_latency_ms.toFixed(2)+' ms');text('requests',fmt(metrics.prediction_requests));text('errors',fmt(metrics.errors));

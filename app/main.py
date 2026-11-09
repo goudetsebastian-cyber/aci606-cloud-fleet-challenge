@@ -106,16 +106,26 @@ def create_app(database_url: str | None = None, model_path: str | None = None) -
         request.app.state.metrics.inference(result.inference_ms, "predict")
         return result
 
-    @api.get("/metrics")
-    def metrics(request: Request) -> dict:
+    def fleet_metrics(request: Request, fleet: list[dict]) -> dict:
         state = request.app.state
-        fleet = state.storage.latest(state.online_seconds)
         return {
             **state.metrics.snapshot(), "stored_samples": state.storage.count(),
             "robots_total": len(fleet), "online_robots": sum(r["connected"] for r in fleet),
             "persistence": state.storage.backend,
             "model": {"version": state.predictor.version, "name": state.predictor.name, **state.predictor.evaluation},
         }
+
+    @api.get("/metrics")
+    def metrics(request: Request) -> dict:
+        return fleet_metrics(request, robots(request))
+
+    @api.get("/dashboard/data", include_in_schema=False)
+    def dashboard_data(request: Request) -> dict:
+        fleet = robots(request)
+        return JSONResponse(content={
+            "health": health(request), "robots": fleet,
+            "metrics": fleet_metrics(request, fleet),
+        }, headers={"Cache-Control": "no-store"})
 
     @api.get("/dashboard", response_class=HTMLResponse)
     def dashboard() -> str:
