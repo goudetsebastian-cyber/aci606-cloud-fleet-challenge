@@ -1,5 +1,7 @@
 # ACI606 · Cloud Fleet Challenge
 
+**[Guion completo para tres expositores, demostración paso a paso y evidencias del trabajo](docs/PRESENTACION_TRES_PERSONAS.md).** Se puede abrir y compartir desde cualquier computador o celular.
+
 Plataforma de flotas desarrollada sobre el [starter del docente](https://github.com/DrOscarL/aci606-cloud-fleet-challenge) para el Ejercicio 4: telemetría persistente, clasificación de condición, panel de operación y métricas.
 
 El panel utiliza superficies blancas, azul marino suave y textos de alto contraste. El mapa, los gráficos y las etiquetas de condición están adaptados al tema claro.
