@@ -15,6 +15,8 @@ class Metrics:
         self.latency_sum = 0.0
 
     def request(self, method: str, path: str) -> None:
+        if path in ("/dashboard/telemetry", "/dashboard/predict"):
+            path = path.removeprefix("/dashboard")
         with self.lock:
             self.counts["requests_total"] += 1
             if method == "POST" and path in ("/telemetry", "/predict"):

@@ -35,7 +35,7 @@
         <h2>Historial tras un reinicio</h2>
         <p>Guarda 125 muestras, reinicia el servicio desde tu cuenta de Render y vuelve aquí para verificar el historial.</p>
         <div class="check-buttons"><button id="proof-prepare" type="button">Guardar 125 muestras</button><a href="https://dashboard.render.com/web/srv-dblv08l9fdbs73ba14dg" target="_blank" rel="noopener">Abrir Render ↗</a><button id="proof-verify" type="button" disabled>Verificar tras reinicio</button></div>
-        <div id="proof-status" class="check-status" role="status">La referencia se conserva en este navegador para verificarla después del reinicio.</div>
+        <label for="proof-select">Prueba guardada en la nube</label><div class="check-buttons"><select id="proof-select" aria-label="Prueba guardada en la nube"><option value="">Cargando pruebas…</option></select><button id="proof-reload" type="button">Recuperar pruebas</button><a id="proof-link" hidden target="_blank" rel="noopener">Enlace de esta prueba ↗</a></div><div id="proof-status" class="check-status" role="status">La prueba se guarda en la nube y puedes recuperarla desde otro equipo.</div>
       </article>
       <details class="metrics-detail"><summary>Ver métricas completas del servicio</summary><pre id="metrics-result">Esperando datos…</pre></details>
     </div>
@@ -67,7 +67,33 @@ const palette={NORMAL:'#247058',WARNING:'#886019',CRITICAL:'#b14250'};
 let fleet=[], selected=null, history=[], historyKey='', paused=false, busy=false;
 function text(id,value){$(id).textContent=value}
 function element(tag,content,className){const e=document.createElement(tag);if(content!==undefined)e.textContent=content;if(className)e.className=className;return e}
-async function get(path){const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),45000);try{const response=await fetch(path,{signal:controller.signal,cache:'no-store'});if(!response.ok)throw Error('HTTP '+response.status);return await response.json()}finally{clearTimeout(timer)}}
+async function requestJson(path, options = {}) {
+  const controller = new AbortController();
+  const external = options.signal;
+  const abort = () => controller.abort();
+  if (external) { if (external.aborted) abort(); else external.addEventListener('abort', abort); }
+  const timer = setTimeout(abort, options.timeout || 45000);
+  try {
+    const response = await fetch(path, {...options, signal: controller.signal, cache: 'no-store'});
+    const data = await response.json();
+    if (!response.ok) throw Error('El servicio respondió HTTP ' + response.status);
+    return data;
+  } finally {
+    clearTimeout(timer);
+    if (external) external.removeEventListener('abort', abort);
+  }
+}
+function get(path) { return requestJson(path); }
+function uniqueId() {
+  const bytes = new Uint8Array(16);
+  if (window.crypto && window.crypto.getRandomValues) window.crypto.getRandomValues(bytes);
+  else for (let i=0;i<bytes.length;i++) bytes[i]=Math.floor(Math.random()*256);
+  return Array.from(bytes, n=>n.toString(16).padStart(2,'0')).join('');
+}
+function errorMessage(error) {
+  return error.name === 'AbortError' ? 'La conexión tardó demasiado. Puedes reintentar.' : error.message;
+}
+
 function renderRows(){
   const term=$('search').value.toLowerCase(),condition=$('condition').value;
   const visible=fleet.filter(r=>r.robot_id.toLowerCase().includes(term)&&(!condition||r.predicted_status===condition));
@@ -96,10 +122,10 @@ async function selectRobot(id){if(selected!==id){history=[];historyKey='';text('
 async function loadHistory(){
   const robot=fleet.find(r=>r.robot_id===selected);if(!robot)return;
   const key=selected+':'+robot.sample_count;if(historyKey===key){renderHistory(robot);return}
-  const requested=selected;const data=await get('/robots/'+encodeURIComponent(requested)+'/history?limit=180&offset='+Math.max(0,robot.sample_count-180));
+  const requested=selected;const data=await get('/dashboard/history/'+encodeURIComponent(requested)+'?limit=180&offset='+Math.max(0,robot.sample_count-180));
   if(requested!==selected)return;history=data;historyKey=key;renderHistory(robot);
 }
-function renderHistory(robot){const total=Math.max(robot.sample_count,history.length);text('history-title','Historial · '+robot.robot_id);text('history-caption','Últimas '+history.length+' de '+fmt(total)+' muestras guardadas');text('history-total',fmt(total));text('history-state',robot.predicted_status);text('history-time',new Date(robot.last_seen*1000).toLocaleTimeString('es-CL'));$('download').hidden=false;$('download').href='/robots/'+encodeURIComponent(robot.robot_id)+'/history';drawChart()}
+function renderHistory(robot){const total=Math.max(robot.sample_count,history.length);text('history-title','Historial · '+robot.robot_id);text('history-caption','Últimas '+history.length+' de '+fmt(total)+' muestras guardadas');text('history-total',fmt(total));text('history-state',robot.predicted_status);text('history-time',new Date(robot.last_seen*1000).toLocaleTimeString('es-CL'));$('download').hidden=false;$('download').href='/dashboard/history/'+encodeURIComponent(robot.robot_id);drawChart()}
 function renderLive(){ $('live').className='live'+(paused?' paused':'');$('live').replaceChildren(element('span',undefined,'dot'),document.createTextNode(paused?'Actualización en pausa':'Actualizando en vivo')) }
 function drawChart(){
   const canvas=$('chart'),rect=canvas.getBoundingClientRect(),ratio=window.devicePixelRatio||1;canvas.width=rect.width*ratio;canvas.height=rect.height*ratio;
@@ -122,7 +148,7 @@ async function refresh(){
     text('metrics-result', JSON.stringify(metrics, null, 2));
     text('api-status',health.status==='ok'?'Operativo':'Revisar');$('api-status').className='badge NORMAL';renderLive();$('error').hidden=true;
     if(!selected&&fleet.length)selected=fleet[0].robot_id;renderRows();renderMap();await loadHistory();text('updated','Última actualización: '+new Date().toLocaleTimeString('es-CL'));
-  }catch(error){$('error').hidden=false;text('error','No se pudo actualizar la información. Se conservan los últimos datos y se reintentará automáticamente.');text('api-status','Sin conexión');$('api-status').className='badge CRITICAL';text('live','Conexión interrumpida');$('live').className='live paused'}finally{busy=false}
+  }catch(error){$('error').hidden=false;text('error','No se pudo actualizar la información. ' + errorMessage(error) + ' Se reintentará automáticamente.');text('api-status','Sin conexión');$('api-status').className='badge CRITICAL';text('live','Conexión interrumpida');$('live').className='live paused'}finally{busy=false}
 }
 $('pause').onclick=()=>{paused=!paused;$('pause').setAttribute('aria-pressed',String(paused));text('pause',paused?'Reanudar':'Pausar');renderLive();if(!paused)refresh()};
 $('search').addEventListener('input',renderRows);$('condition').addEventListener('change',renderRows);$('chart-feature').addEventListener('change',drawChart);window.addEventListener('resize',drawChart);
@@ -151,14 +177,10 @@ async function sendDemoFrame(run) {
     const frame = run.frames[run.index];
     const timestamp = Date.now() / 1000;
     await Promise.all(frame.map(async sample => {
-      const response = await fetch('/telemetry', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        signal: run.controller.signal,
+      const result = await requestJson('/dashboard/telemetry', {
+        method: 'POST', headers: {'Content-Type': 'application/json'}, signal: run.controller.signal,
         body: JSON.stringify({...sample, robot_id: run.prefix + sample.robot_id, timestamp}),
       });
-      if (!response.ok) throw Error('HTTP ' + response.status);
-      const result = await response.json();
       if (result.accepted !== true) throw Error('Muestra sin confirmar');
     }));
     if (demoRun !== run) return;
@@ -188,7 +210,7 @@ async function sendDemoFrame(run) {
 async function startDemo() {
   const run = {
     controller: new AbortController(),
-    prefix: 'DEMO-' + crypto.randomUUID().slice(0, 8) + '-',
+    prefix: 'DEMO-' + uniqueId().slice(0, 8) + '-',
     expiresAt: Date.now() + 120000,
     index: 0,
   };
@@ -205,9 +227,7 @@ async function startDemo() {
     if (demoRun === run) stopDemo('Demostración finalizada. Las mediciones quedan en el historial.');
   }, 120000);
   try {
-    const response = await fetch('/demo/scenario', {signal: run.controller.signal, cache: 'no-store'});
-    if (!response.ok) throw Error('HTTP ' + response.status);
-    const scenario = await response.json();
+    const scenario = await requestJson('/dashboard/scenario', {signal: run.controller.signal});
     if (demoRun !== run) return;
     run.frames = scenario.frames;
     run.intervalMs = scenario.interval_seconds * 1000;
@@ -231,16 +251,21 @@ async function checkApi(validation) {
   $('check-validation').disabled = true;
   text('check-status', 'Consultando la API…');
   try {
-    const scenario = await get('/demo/scenario');
+    const scenario = await get('/dashboard/scenario');
     const sample = {...scenario.frames[0][0], robot_id: 'WEB-CHECK', timestamp: Date.now() / 1000};
     if (validation) sample.battery = 101;
-    const response = await fetch(validation ? '/telemetry' : '/predict', {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 45000);
+    let response, result;
+    try {
+    response = await fetch(validation ? '/dashboard/telemetry' : '/dashboard/predict', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(sample),
-      signal: AbortSignal.timeout(20000),
+      signal: controller.signal,
     });
-    const result = await response.json();
+    result = await response.json();
+    } finally { clearTimeout(timer); }
     $('check-result').hidden = false;
     text('check-result', JSON.stringify(result, null, 2));
     const expected = validation ? 422 : 200;
@@ -249,7 +274,7 @@ async function checkApi(validation) {
       : 'HTTP ' + response.status + ' · Vuelve a intentarlo cuando el servicio esté disponible.');
     await refresh();
   } catch (error) {
-    text('check-status', 'No se pudo completar la consulta. Puedes volver a intentarlo.');
+    text('check-status', 'No se pudo completar la consulta. ' + errorMessage(error));
   } finally {
     apiCheckBusy = false;
     $('check-prediction').disabled = false;
@@ -259,100 +284,109 @@ async function checkApi(validation) {
 $('check-prediction').onclick = () => checkApi(false);
 $('check-validation').onclick = () => checkApi(true);
 
-const proofStorageKey = 'fleet-persistence-v1';
 let proofSnapshot = null;
 let proofBusy = false;
-let proofController = null;
-try {
-  const saved = JSON.parse(localStorage.getItem(proofStorageKey));
-  if (saved && saved.count === 125) proofSnapshot = saved;
-} catch (error) {
-  proofSnapshot = null;
-}
+let pendingProofId = null;
 function setProofBusy(value) {
   proofBusy = value;
   $('proof-prepare').disabled = value;
   $('proof-verify').disabled = value || !proofSnapshot;
+  $('proof-reload').disabled = value;
+  $('proof-select').disabled = value;
 }
-async function historyDigest(rows) {
-  const bytes = new TextEncoder().encode(JSON.stringify(rows));
-  const digest = await crypto.subtle.digest('SHA-256', bytes);
-  return Array.from(new Uint8Array(digest), value => value.toString(16).padStart(2, '0')).join('');
+function useProof(reference) {
+  proofSnapshot = reference;
+  const url = new URL(window.location.href);
+  url.searchParams.set('proof', reference.proof_id);
+  window.history.replaceState(null, '', url.href);
+  $('proof-link').href = url.href;
+  $('proof-link').hidden = false;
+  $('proof-select').value = reference.proof_id;
+  setProofBusy(proofBusy);
+}
+async function loadProofs(wanted) {
+  const references = await get('/dashboard/proofs');
+  $('proof-select').replaceChildren(element('option', 'Selecciona una prueba'));
+  $('proof-select').options[0].value = '';
+  references.forEach(reference => {
+    const option = element('option', new Date(reference.created_at*1000).toLocaleString('es-CL') + ' · ' + reference.proof_id.slice(0,8));
+    option.value = reference.proof_id;
+    $('proof-select').append(option);
+  });
+  const id = wanted || (proofSnapshot && proofSnapshot.proof_id) || new URL(window.location.href).searchParams.get('proof');
+  if (id) {
+    const reference = references.find(item => item.proof_id === id) || await get('/dashboard/proofs/' + encodeURIComponent(id));
+    if (!references.some(item => item.proof_id === id)) {
+      const option = element('option', reference.proof_id.slice(0,8)); option.value=id; $('proof-select').append(option);
+    }
+    useProof(reference);
+  }
+  return references;
 }
 async function prepareProof() {
   if (proofBusy) return;
   if (demoRun) stopDemo('Demostración detenida. Las mediciones quedan en el historial.');
   setProofBusy(true);
-  proofController = new AbortController();
-  const timeout = setTimeout(() => proofController.abort(), 120000);
-  text('proof-status', 'Preparando las 125 muestras…');
+  pendingProofId = pendingProofId || uniqueId();
+  text('proof-status', 'Guardando 125 muestras y su referencia en la nube…');
   try {
-    const scenario = await get('/demo/scenario');
-    const robotId = 'PERSIST-WEB-' + crypto.randomUUID().slice(0, 8);
-    const timestamp = Date.now() / 1000;
-    for (let first = 0; first < 125; first += 5) {
-      const batch = [];
-      for (let index = first; index < Math.min(first + 5, 125); index += 1) {
-        const sample = {...scenario.frames[index % scenario.frames.length][0], robot_id: robotId, timestamp: timestamp + index};
-        batch.push(fetch('/telemetry', {
-          method: 'POST', headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify(sample), signal: proofController.signal,
-        }).then(async response => {
-          if (!response.ok || (await response.json()).accepted !== true) throw Error('Escritura sin confirmar');
-        }));
-      }
-      await Promise.all(batch);
-      text('proof-status', Math.min(first + 5, 125) + '/125 muestras guardadas…');
-    }
-    const rows = await get('/robots/' + encodeURIComponent(robotId) + '/history');
-    if (rows.length !== 125) throw Error('Historial incompleto');
-    const health = await get('/health');
-    const snapshot = {robot_id: robotId, count: 125, sha256: await historyDigest(rows), before_instance_id: health.instance_id};
-    localStorage.setItem(proofStorageKey, JSON.stringify(snapshot));
-    proofSnapshot = snapshot;
-    $('search').value = robotId;
+    const reference = await requestJson('/dashboard/proofs', {
+      method: 'POST', headers: {'Content-Type':'application/json'}, timeout:90000,
+      body: JSON.stringify({request_id:pendingProofId}),
+    });
+    useProof(reference);
+    pendingProofId = null;
+    await loadProofs(reference.proof_id);
+    $('search').value = reference.robot_id;
     $('condition').value = '';
-    selected = robotId;
+    selected = reference.robot_id;
     historyKey = '';
-    text('proof-status', '125 muestras guardadas. Abre Render, reinicia el servicio y pulsa Verificar tras reinicio.');
+    paused = false;
+    text('pause','Pausar'); $('pause').setAttribute('aria-pressed','false');
+    text('proof-status', '125 muestras guardadas. La referencia también está en la nube. Abre Render, reinicia el servicio y verifica esta prueba desde cualquier equipo.');
     await refresh();
   } catch (error) {
-    proofController.abort();
-    text('proof-status', 'No se pudo preparar la comprobación. Puedes volver a guardar las muestras.');
-  } finally {
-    clearTimeout(timeout);
-    proofController = null;
-    setProofBusy(false);
-  }
+    text('proof-status', 'No se pudo confirmar la prueba. ' + errorMessage(error) + ' Al reintentar se recuperará la misma operación, sin duplicar sus muestras.');
+  } finally { setProofBusy(false); }
 }
 async function verifyProof() {
   if (proofBusy || !proofSnapshot) return;
   setProofBusy(true);
-  text('proof-status', 'Comprobando el reinicio y el historial…');
+  text('proof-status', 'Comprobando el reinicio y las muestras en la nube…');
   try {
-    const health = await get('/health');
-    if (health.instance_id === proofSnapshot.before_instance_id) {
-      text('proof-status', 'El identificador de arranque sigue igual. Espera a que termine el reinicio en Render y vuelve a verificar.');
-      return;
+    const result = await get('/dashboard/proofs/' + encodeURIComponent(proofSnapshot.proof_id));
+    if (!result.intact) {
+      text('proof-status', 'El historial difiere de la referencia guardada. Revisa esta prueba antes de repetirla.');
+    } else if (!result.restarted) {
+      text('proof-status', '125/125 muestras intactas. El identificador de arranque sigue igual: reinicia el servicio en Render y vuelve a verificar.');
+    } else {
+      text('proof-status', 'Persistencia confirmada · 125/125 muestras idénticas y un nuevo arranque del servicio.');
     }
-    const rows = await get('/robots/' + encodeURIComponent(proofSnapshot.robot_id) + '/history');
-    if (rows.length !== proofSnapshot.count || await historyDigest(rows) !== proofSnapshot.sha256) {
-      text('proof-status', 'El historial difiere de la referencia guardada. Revisa el servicio antes de repetir la comprobación.');
-      return;
-    }
-    text('proof-status', 'Persistencia confirmada · 125/125 muestras idénticas y un nuevo arranque del servicio.');
     await refresh();
-  } catch (error) {
-    text('proof-status', 'No se pudo consultar el servicio. Espera a que esté disponible y vuelve a verificar.');
-  } finally {
-    setProofBusy(false);
-  }
+  } catch (error) { text('proof-status', 'No se pudo verificar la prueba. ' + errorMessage(error)); }
+  finally { setProofBusy(false); }
 }
-setProofBusy(false);
-if (proofSnapshot) text('proof-status', 'Hay una referencia de 125 muestras guardada en este navegador. Puedes verificarla después de reiniciar el servicio.');
 $('proof-prepare').onclick = prepareProof;
 $('proof-verify').onclick = verifyProof;
-window.addEventListener('pagehide', () => proofController?.abort());
+$('proof-reload').onclick = async () => {
+  setProofBusy(true);
+  try { const refs = await loadProofs(); text('proof-status', refs.length ? 'Pruebas recuperadas de la nube. Selecciona la que deseas verificar.' : 'Aún no hay pruebas guardadas. Pulsa Guardar 125 muestras.'); }
+  catch(error) { text('proof-status','No se pudieron recuperar las pruebas. ' + errorMessage(error)); }
+  finally { setProofBusy(false); }
+};
+$('proof-select').onchange = async () => {
+  const id = $('proof-select').value;
+  if (!id) { proofSnapshot=null; setProofBusy(false); return; }
+  setProofBusy(true);
+  try { await loadProofs(id); text('proof-status','Prueba recuperada de la nube. Ya puedes verificarla.'); }
+  catch(error) { text('proof-status','No se pudo recuperar la prueba. ' + errorMessage(error)); }
+  finally { setProofBusy(false); }
+};
+setProofBusy(true);
+if (new URL(window.location.href).searchParams.has('proof')) $('presentation-checks').open = true;
+loadProofs().then(() => {
+  if(proofSnapshot) text('proof-status','Prueba recuperada de la nube. Ya puedes verificarla.');
+}).catch(error => text('proof-status','Pulsa Recuperar pruebas para consultar la nube. ' + errorMessage(error))).finally(()=>setProofBusy(false));
 refresh();setInterval(refresh,3000);
 </script>
 </body>

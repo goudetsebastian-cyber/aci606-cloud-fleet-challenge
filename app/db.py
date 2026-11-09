@@ -1,10 +1,13 @@
 """Persistent telemetry. PostgreSQL in PaaS; SQLite only for local development."""
 from __future__ import annotations
 from pathlib import Path
+import hashlib
+import json
 import time
 from sqlalchemy import Column, Float, Index, Integer, MetaData, String, Table, create_engine, event, func, insert, select, text
 from sqlalchemy.engine import make_url
 from sqlalchemy.pool import StaticPool
+from sqlalchemy.exc import IntegrityError
 
 METADATA = MetaData()
 TELEMETRY = Table(
@@ -21,6 +24,19 @@ TELEMETRY = Table(
     Column("received_at", Float, nullable=False),
 )
 Index("ix_telemetry_robot_timestamp", TELEMETRY.c.robot_id, TELEMETRY.c.timestamp, TELEMETRY.c.id)
+PROOFS = Table(
+    "persistence_proofs", METADATA,
+    Column("proof_id", String(32), primary_key=True),
+    Column("robot_id", String(64), nullable=False),
+    Column("count", Integer, nullable=False),
+    Column("sha256", String(64), nullable=False),
+    Column("before_instance_id", String(32), nullable=False),
+    Column("created_at", Float, nullable=False),
+)
+
+
+def history_digest(rows: list[dict]) -> str:
+    return hashlib.sha256(json.dumps(rows, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()
 
 
 def normalize_url(url: str) -> str:
@@ -96,6 +112,37 @@ class Storage:
     def count(self) -> int:
         with self.engine.connect() as conn:
             return int(conn.scalar(select(func.count()).select_from(TELEMETRY)) or 0)
+
+    def proofs(self) -> list[dict]:
+        with self.engine.connect() as conn:
+            return [dict(row) for row in conn.execute(select(PROOFS).order_by(PROOFS.c.created_at.desc()).limit(30)).mappings()]
+
+    def proof(self, proof_id: str) -> dict | None:
+        with self.engine.connect() as conn:
+            row = conn.execute(select(PROOFS).where(PROOFS.c.proof_id == proof_id)).mappings().first()
+            return dict(row) if row else None
+
+    def save_proof(self, proof_id: str, rows: list[dict], instance_id: str) -> dict:
+        existing = self.proof(proof_id)
+        if existing:
+            return existing
+        try:
+            with self.engine.begin() as conn:
+                conn.execute(insert(TELEMETRY), [{**row, "received_at": time.time()} for row in rows])
+                saved = [dict(row) for row in conn.execute(select(TELEMETRY).where(
+                    TELEMETRY.c.robot_id == rows[0]["robot_id"]
+                ).order_by(TELEMETRY.c.timestamp, TELEMETRY.c.id)).mappings()]
+                reference = {"proof_id": proof_id, "robot_id": rows[0]["robot_id"], "count": len(saved),
+                             "sha256": history_digest(saved), "before_instance_id": instance_id, "created_at": time.time()}
+                if reference["count"] != 125:
+                    raise ValueError("Expected exactly 125 samples")
+                conn.execute(insert(PROOFS).values(**reference))
+            return reference
+        except IntegrityError:
+            existing = self.proof(proof_id)
+            if existing:
+                return existing
+            raise
 
     def close(self) -> None:
         self.engine.dispose()

@@ -59,7 +59,7 @@ La tabla tiene una clave primaria y un índice por robot, tiempo e identificador
 
 Esta arquitectura aplica la separación entre cómputo y almacenamiento que vimos en clases. La aplicación puede reiniciarse y volver a conectarse a la misma base.
 
-Ahora vamos a guardar 125 mediciones de un robot de prueba. El navegador conservará una referencia con el conteo, la huella digital del historial y el identificador de arranque. Después del reinicio consultaremos nuevamente los registros para comprobar que se conservan.
+Ahora vamos a guardar 125 mediciones de un robot de prueba. La API guardará en PostgreSQL una referencia con el conteo, la huella digital del historial y el identificador de arranque. Después del reinicio consultaremos nuevamente los registros para comprobar que se conservan.
 
 ### Qué mostrar y cómo hacerlo
 
@@ -135,13 +135,13 @@ Los conteos observados son 10.213 muestras NORMAL, 9.647 WARNING y 12.908 CRITIC
 
 Vamos a comprobar el historial después del reinicio.
 
-La referencia preparada contiene el identificador del robot, la cantidad de muestras, una huella digital del contenido y el identificador de arranque anterior. Al verificar, el navegador consulta nuevamente la API y compara esos datos.
+La referencia preparada contiene el identificador del robot, la cantidad de muestras, una huella digital del contenido y el identificador de arranque anterior. Al verificar, la API recupera la referencia y el historial desde PostgreSQL y compara esos datos.
 
 **Decir el párrafo siguiente después de que aparezca Persistencia confirmada.**
 
 La comprobación encontró un nuevo arranque del servicio y las 125 muestras con exactamente el mismo contenido. Esto demuestra que el historial se conserva de forma independiente del proceso de la aplicación.
 
-La referencia que mantiene el navegador permite hacer la comparación. Las mediciones se recuperan desde PostgreSQL mediante la API.
+La referencia persistente guardada en PostgreSQL permite hacer la comparación desde cualquier navegador. Las mediciones se recuperan desde PostgreSQL mediante la API.
 
 El servicio también implementa las siete rutas exigidas por la pauta. Podemos comprobar su estado, enviar telemetría, consultar los robots y su historial, obtener predicciones, consultar métricas y abrir el panel.
 
@@ -160,7 +160,7 @@ GitHub conserva los commits, la rama de funcionalidad y su integración a main. 
 ### Qué mostrar y cómo hacerlo
 
 1. Comprueba que el nuevo reinicio terminó en Render y figura como **Live**. Debe corresponder a la operación que inició la persona 1.
-2. Vuelve al panel usando el mismo navegador donde se guardaron las 125 muestras.
+2. Vuelve al panel desde cualquier equipo. Si cambias de navegador, pulsa **Recuperar pruebas** y selecciona la prueba por su fecha e identificador; también puedes usar **Enlace de esta prueba**.
 3. Pulsa **Verificar tras reinicio**.
 4. Muestra el mensaje de **125/125 muestras idénticas y un nuevo arranque del servicio**.
 5. Abre **Historial completo** para mostrar los registros consultables.
@@ -175,16 +175,16 @@ La demostración de seis robots dura dos minutos por ejecución. Se puede volver
 
 ## Qué comprueba exactamente el reinicio
 
-1. El navegador envía 125 muestras de un robot de comprobación a `/telemetry`.
+1. El navegador solicita a `/dashboard/proofs` guardar 125 muestras de un robot de comprobación. La API ejecuta el mismo modelo y guarda las mediciones y su referencia en una transacción.
 2. La API valida, predice y confirma la escritura de cada muestra en PostgreSQL.
-3. El navegador consulta el historial completo y calcula su SHA-256.
-4. Conserva una referencia con el robot, el conteo, la huella y el identificador de arranque. Esa referencia se guarda en el mismo navegador para poder recargar la página.
+3. La API consulta el historial completo y calcula su SHA-256 con un formato estable.
+4. Conserva una referencia con el robot, el conteo, la huella y el identificador de arranque en PostgreSQL. La prueba se puede recuperar desde otro equipo, sin almacenamiento local.
 5. Se reinicia la aplicación desde Render.
 6. Al verificar, se exige un identificador de arranque distinto.
 7. Se vuelve a consultar el historial mediante la API y se compara su conteo y su huella.
 8. El resultado se confirma cuando las 125 muestras conservan el mismo contenido.
 
-El historial operacional está en Neon. La referencia del navegador sirve para comprobarlo después del reinicio. Las muestras ya confirmadas permanecen disponibles cuando se detiene la demostración o se cierra la página.
+El historial operacional está en Neon. La referencia persistente en PostgreSQL sirve para comprobarlo después del reinicio. Las muestras ya confirmadas permanecen disponibles cuando se detiene la demostración o se cierra la página.
 
 Si el panel indica que el identificador de arranque sigue igual, espera a que finalice la operación de Render y vuelve a pulsar **Verificar tras reinicio**.
 
@@ -193,7 +193,7 @@ Si el panel indica que el identificador de arranque sigue igual, espera a que fi
 - Abrir [el estado del servicio](https://aci606-cloud-fleet-sebit44s.onrender.com/health) y esperar `status: ok`. Revisar `database: postgresql` y `model_loaded: true`.
 - Tener iniciada la sesión de Render en el equipo que presentará.
 - Abrir esta guía y el reporte del modelo.
-- Mantener la referencia de las 125 muestras en el mismo navegador durante la comprobación.
+- Identificar la prueba por su fecha e identificador o conservar su enlace. Se puede recuperar desde cualquier navegador.
 - Abrir el panel desde otro dispositivo. Esa comprobación ya está registrada y puede repetirse con un celular.
 - Mantener una flota activa al mostrar el panel y durante la evaluación que indique el docente.
 - Compartir con el docente la URL pública y el repositorio.
@@ -224,3 +224,14 @@ El F1 0,9260 corresponde a las 16 flotas reservadas durante el desarrollo. El F1
 - [Contratos y rutas de la API](API_CONTRACT.md).
 
 Revisión técnica y guía actualizadas el 9 de noviembre de 2026.
+
+
+## Recuperar la prueba desde otro equipo
+
+1. Abre el [panel público](https://aci606-cloud-fleet-sebit44s.onrender.com/dashboard).
+2. Abre **Pruebas para la presentación** y pulsa **Recuperar pruebas**.
+3. Selecciona en **Prueba guardada en la nube** la fecha e identificador de la prueba que prepararon.
+4. Pulsa **Verificar tras reinicio**. Si el servidor aún no se ha reiniciado, indicará que las 125 muestras están intactas y que el identificador de arranque sigue igual.
+5. Reinicia el servicio desde la cuenta autorizada de Render, espera que vuelva a estar disponible y repite la verificación.
+
+**Guardar 125 muestras** crea una prueba nueva. Ante un fallo de conexión, reintentar recupera la misma operación y evita duplicados. La referencia y las mediciones se guardan en la misma transacción: una confirmación corresponde a 125 muestras completas. **Enlace de esta prueba** permite abrir directamente la referencia elegida en otro navegador.
