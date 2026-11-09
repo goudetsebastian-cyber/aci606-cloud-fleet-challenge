@@ -43,6 +43,14 @@ fs.mkdirSync(out,{recursive:true});
       console.log(JSON.stringify({passed:true,phase,proof_id:ref.proof_id,checks:['fresh mobile context','storage blocked','legacy crypto unavailable','tracking paths blocked','125 samples identical after server restart']}));
     } else {
       const {page,context}=await device({width:1440,height:1100});
+      let savedProof = false;
+      context.on('response', response => {
+        if (new URL(response.url()).pathname === '/dashboard/proofs' && response.request().method() === 'POST' && response.status() === 200) savedProof = true;
+      });
+      await context.route('**/dashboard/proofs', route => {
+        if (savedProof && route.request().method() === 'GET') return route.abort('failed');
+        return route.continue();
+      });
       await page.goto(base+'/dashboard');
       await page.locator('#api-status').filter({hasText:'Operativo'}).waitFor();
       await page.getByRole('button',{name:'Iniciar demostración',exact:true}).click();

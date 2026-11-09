@@ -301,6 +301,10 @@ function useProof(reference) {
   window.history.replaceState(null, '', url.href);
   $('proof-link').href = url.href;
   $('proof-link').hidden = false;
+  if (!Array.from($('proof-select').options).some(option => option.value === reference.proof_id)) {
+    const option = element('option', reference.proof_id.slice(0,8));
+    option.value = reference.proof_id; $('proof-select').append(option);
+  }
   $('proof-select').value = reference.proof_id;
   setProofBusy(proofBusy);
 }
@@ -336,7 +340,8 @@ async function prepareProof() {
     });
     useProof(reference);
     pendingProofId = null;
-    await loadProofs(reference.proof_id);
+    // A failed list refresh must not turn an already committed save into an error.
+    try { await loadProofs(reference.proof_id); } catch (error) { /* The confirmed reference remains selected. */ }
     $('search').value = reference.robot_id;
     $('condition').value = '';
     selected = reference.robot_id;
@@ -377,6 +382,7 @@ $('proof-reload').onclick = async () => {
 $('proof-select').onchange = async () => {
   const id = $('proof-select').value;
   if (!id) { proofSnapshot=null; setProofBusy(false); return; }
+  proofSnapshot = null;
   setProofBusy(true);
   try { await loadProofs(id); text('proof-status','Prueba recuperada de la nube. Ya puedes verificarla.'); }
   catch(error) { text('proof-status','No se pudo recuperar la prueba. ' + errorMessage(error)); }
