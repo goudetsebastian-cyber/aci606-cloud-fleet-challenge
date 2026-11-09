@@ -20,6 +20,8 @@ La ingesta tiene semántica de una fila por POST aceptado. Reenviar una misma mu
 
 El panel permite iniciar una ejecución de seis robots, limitada a dos minutos. `GET /demo/scenario` genera 40 rondas con el simulador original de `simulator/core.py`, sin escribir en la base. El navegador asigna identificadores propios y timestamps actuales, y envía cada muestra mediante `POST /telemetry`. La validación, la inferencia y la transacción son las mismas de los clientes externos. El cliente detiene sus envíos al finalizar, al pulsar Detener o al cerrar la página. El historial ya confirmado permanece en PostgreSQL.
 
+Los controles de presentación llaman a `/predict` y comprueban un rechazo 422 de `/telemetry`. La comprobación de reinicio escribe 125 muestras de un robot propio y guarda en localStorage el identificador, el conteo, SHA-256 del historial y el identificador de arranque de la API. Después del reinicio manual en Render, el cliente exige un arranque distinto y la coincidencia de conteo y hash. El navegador conserva la referencia al recargar. El permiso de reiniciar infraestructura permanece en la cuenta de Render.
+
 ## Inferencia
 
 El artefacto de confianza se carga una vez en el ciclo de vida del servicio. Nunca se aceptan modelos subidos por clientes. El bundle incluye pipeline, orden de las variables, versión y métricas. El entrenamiento usa GroupShuffleSplit y GroupKFold; el modelo final servido solo ha visto las 48 flotas de entrenamiento. Identificadores, tiempos y posiciones no son variables predictoras.

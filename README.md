@@ -8,6 +8,8 @@ El panel utiliza superficies blancas, azul marino suave y textos de alto contras
 
 El botón usa un escenario generado con `simulator/core.py` y envía las muestras a `/telemetry`. Cada ejecución recibe identificadores propios. El panel incluye acceso a la API, las métricas y el código en GitHub.
 
+En **Pruebas para la presentación** se puede obtener una predicción, probar el rechazo de datos inválidos y guardar 125 muestras para comprobar la persistencia. La referencia se guarda en el navegador. Después de reiniciar el servicio desde la cuenta de Render, el botón **Verificar tras reinicio** exige un identificador de arranque nuevo y el mismo historial completo. Las métricas completas se despliegan en esa misma sección.
+
 <!-- deployment:start -->
 Servicio: **[https://aci606-cloud-fleet-sebit44s.onrender.com](https://aci606-cloud-fleet-sebit44s.onrender.com)** · [Panel](https://aci606-cloud-fleet-sebit44s.onrender.com/dashboard) · [API](https://aci606-cloud-fleet-sebit44s.onrender.com/docs)
 

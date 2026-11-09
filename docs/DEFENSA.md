@@ -17,10 +17,10 @@ Solo afirmar que la publicación y su reinicio están verificados después de co
 1. Abrir `/health`: mostrar PostgreSQL, modelo y `instance_id`.
 2. Abrir `/dashboard` y pulsar **Iniciar demostración**. Se activan seis robots durante dos minutos desde el navegador. Mostrar condiciones, batería e historial. El botón **Detener demostración** y el cierre de la pestaña detienen ese cliente. El lanzador del simulador de consola sigue disponible para las pruebas de carga y clientes externos.
 3. Seleccionar un robot, cambiar la variable del gráfico y abrir el historial completo.
-4. En `/docs`, ejecutar `/predict` con una muestra y explicar los cinco campos obligatorios. `confidence` es probabilidad estimada, no una garantía de calibración.
-5. Enviar una batería fuera de rango: mostrar 422 y confirmar que `/health` sigue respondiendo.
-6. Ejecutar la fase `before` de persistencia: guarda 125 muestras y su huella. Reiniciar el servicio desde Render y ejecutar `after`: deben cambiar el identificador del proceso y conservarse los datos.
-7. Abrir `/metrics` y explicar solicitudes, errores, latencia y tiempo activo. Los contadores se reinician con el proceso; el historial permanece en PostgreSQL.
+4. Abrir **Pruebas para la presentación** en el panel y pulsar **Obtener predicción**. Mostrar HTTP 200 y los cinco campos obligatorios. `confidence` es probabilidad estimada, no una garantía de calibración.
+5. Pulsar **Probar dato inválido** para enviar una batería fuera de rango y mostrar HTTP 422.
+6. Pulsar **Guardar 125 muestras** y esperar la confirmación. Abrir Render desde el enlace del panel y usar **Manual Deploy > Restart service**. Cuando ese reinicio termine en Live, volver al panel y pulsar **Verificar tras reinicio**. La verificación exige un identificador de arranque nuevo y el mismo hash de las 125 muestras. La referencia se conserva en el mismo navegador si se recarga el panel. El programa `tests/check_persistence.py` mantiene la alternativa por consola.
+7. Desplegar **Ver métricas completas del servicio** y explicar solicitudes, errores, latencia y tiempo activo. Los contadores se reinician con el proceso; el historial permanece en PostgreSQL.
 
 ## Preguntas probables y respuestas
 

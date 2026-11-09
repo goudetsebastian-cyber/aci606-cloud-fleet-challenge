@@ -9,6 +9,7 @@
     #condition{width:135px;flex:0 0 135px}@media(max-width:650px){.robot-button{max-width:95px;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}td,th{padding-left:12px;padding-right:12px}.battery-track{width:30px}.confidence{font-size:9px}}
     .demo-controls{display:flex;align-items:center;justify-content:space-between;gap:18px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);padding:17px 22px;margin-bottom:22px}.demo-controls strong{display:block;font-size:14px}.demo-controls p{font-size:12px;margin-top:3px}.demo-status{font-size:12px;color:var(--accent);margin-top:7px}.demo-status.failed{color:var(--red)}#demo-toggle{background:var(--accent);border-color:var(--accent);color:#fff;white-space:nowrap}#demo-toggle:hover{background:#294d78}.top nav{flex-wrap:wrap;justify-content:flex-end}@media(max-width:650px){.demo-controls{align-items:stretch;flex-direction:column;padding:16px}.top{gap:12px}.top nav{gap:8px 12px}}
     @media(max-width:650px){.robot-button{white-space:normal;overflow-wrap:anywhere;text-overflow:clip}}
+    .presentation-checks{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);margin-bottom:22px}.presentation-checks>summary{cursor:pointer;padding:15px 22px;font-weight:600;color:var(--accent)}.check-content{display:grid;grid-template-columns:1fr 1fr;gap:22px;padding:0 22px 20px}.check-content h2{margin:6px 0}.check-content p{font-size:12px;margin-bottom:12px}.check-buttons{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.check-status{font-size:12px;color:var(--accent);margin:12px 0}.check-content pre,.metrics-detail pre{font-size:11px;white-space:pre-wrap;overflow-wrap:anywhere;background:var(--bg);border-radius:8px;padding:12px;margin:12px 0 0;max-height:260px;overflow:auto}button:disabled{opacity:.5;cursor:default}.metrics-detail{grid-column:1/-1;font-size:12px}.metrics-detail summary{cursor:pointer}@media(max-width:800px){.check-content{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -20,6 +21,25 @@
     <div><strong>Prueba la flota desde aquí</strong><p>Inicia seis robots simulados durante dos minutos. Sus mediciones se guardan en el historial.</p><div id="demo-status" class="demo-status" role="status">Puedes detener la demostración en cualquier momento.</div></div>
     <button id="demo-toggle" type="button" aria-pressed="false">Iniciar demostración</button>
   </section>
+  <details class="presentation-checks" id="presentation-checks">
+    <summary>Pruebas para la presentación</summary>
+    <div class="check-content">
+      <article>
+        <h2>Predicción y validación</h2>
+        <p>Envía una muestra del simulador al modelo o comprueba el rechazo de una batería fuera de rango.</p>
+        <div class="check-buttons"><button id="check-prediction" type="button">Obtener predicción</button><button id="check-validation" type="button">Probar dato inválido</button></div>
+        <div id="check-status" class="check-status" role="status">La respuesta de la API aparecerá aquí.</div>
+        <pre id="check-result" hidden></pre>
+      </article>
+      <article>
+        <h2>Historial tras un reinicio</h2>
+        <p>Guarda 125 muestras, reinicia el servicio desde tu cuenta de Render y vuelve aquí para verificar el historial.</p>
+        <div class="check-buttons"><button id="proof-prepare" type="button">Guardar 125 muestras</button><a href="https://dashboard.render.com/web/srv-dblv08l9fdbs73ba14dg" target="_blank" rel="noopener">Abrir Render ↗</a><button id="proof-verify" type="button" disabled>Verificar tras reinicio</button></div>
+        <div id="proof-status" class="check-status" role="status">La referencia se conserva en este navegador para verificarla después del reinicio.</div>
+      </article>
+      <details class="metrics-detail"><summary>Ver métricas completas del servicio</summary><pre id="metrics-result">Esperando datos…</pre></details>
+    </div>
+  </details>
   <section class="stats" aria-label="Resumen de la flota">
     <article class="stat"><div class="stat-label">Robots en línea</div><div class="stat-value accent" id="online">—</div><div class="stat-note" id="fleet-note">Esperando telemetría</div></article>
     <article class="stat"><div class="stat-label">Condición crítica</div><div class="stat-value red" id="critical">—</div><div class="stat-note">Según la última predicción</div></article>
@@ -99,6 +119,7 @@ async function refresh(){
     text('online',fmt(fleet.filter(r=>r.connected).length));text('fleet-note',fmt(fleet.length)+' robots registrados');text('critical',fmt(fleet.filter(r=>r.predicted_status==='CRITICAL').length));
     $('battery').replaceChildren(document.createTextNode(fleet.length?(fleet.reduce((n,r)=>n+r.battery,0)/fleet.length).toFixed(1):'—'),element('small',' %'));text('samples',fmt(metrics.stored_samples));
     text('uptime',Math.floor(metrics.uptime_seconds/3600)+' h '+Math.floor(metrics.uptime_seconds%3600/60)+' min');text('latency',metrics.average_prediction_latency_ms.toFixed(2)+' ms');text('requests',fmt(metrics.prediction_requests));text('errors',fmt(metrics.errors));
+    text('metrics-result', JSON.stringify(metrics, null, 2));
     text('api-status',health.status==='ok'?'Operativo':'Revisar');$('api-status').className='badge NORMAL';renderLive();$('error').hidden=true;
     if(!selected&&fleet.length)selected=fleet[0].robot_id;renderRows();renderMap();await loadHistory();text('updated','Última actualización: '+new Date().toLocaleTimeString('es-CL'));
   }catch(error){$('error').hidden=false;text('error','No se pudo actualizar la información. Se conservan los últimos datos y se reintentará automáticamente.');text('api-status','Sin conexión');$('api-status').className='badge CRITICAL';text('live','Conexión interrumpida');$('live').className='live paused'}finally{busy=false}
@@ -201,6 +222,137 @@ $('demo-toggle').onclick = () => {
   else startDemo();
 };
 window.addEventListener('pagehide', () => stopDemo('Demostración detenida. Las mediciones quedan en el historial.'));
+
+let apiCheckBusy = false;
+async function checkApi(validation) {
+  if (apiCheckBusy) return;
+  apiCheckBusy = true;
+  $('check-prediction').disabled = true;
+  $('check-validation').disabled = true;
+  text('check-status', 'Consultando la API…');
+  try {
+    const scenario = await get('/demo/scenario');
+    const sample = {...scenario.frames[0][0], robot_id: 'WEB-CHECK', timestamp: Date.now() / 1000};
+    if (validation) sample.battery = 101;
+    const response = await fetch(validation ? '/telemetry' : '/predict', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(sample),
+      signal: AbortSignal.timeout(20000),
+    });
+    const result = await response.json();
+    $('check-result').hidden = false;
+    text('check-result', JSON.stringify(result, null, 2));
+    const expected = validation ? 422 : 200;
+    text('check-status', response.status === expected
+      ? 'HTTP ' + expected + (validation ? ' · Dato fuera de rango rechazado.' : ' · Predicción recibida.')
+      : 'HTTP ' + response.status + ' · Vuelve a intentarlo cuando el servicio esté disponible.');
+    await refresh();
+  } catch (error) {
+    text('check-status', 'No se pudo completar la consulta. Puedes volver a intentarlo.');
+  } finally {
+    apiCheckBusy = false;
+    $('check-prediction').disabled = false;
+    $('check-validation').disabled = false;
+  }
+}
+$('check-prediction').onclick = () => checkApi(false);
+$('check-validation').onclick = () => checkApi(true);
+
+const proofStorageKey = 'fleet-persistence-v1';
+let proofSnapshot = null;
+let proofBusy = false;
+let proofController = null;
+try {
+  const saved = JSON.parse(localStorage.getItem(proofStorageKey));
+  if (saved && saved.count === 125) proofSnapshot = saved;
+} catch (error) {
+  proofSnapshot = null;
+}
+function setProofBusy(value) {
+  proofBusy = value;
+  $('proof-prepare').disabled = value;
+  $('proof-verify').disabled = value || !proofSnapshot;
+}
+async function historyDigest(rows) {
+  const bytes = new TextEncoder().encode(JSON.stringify(rows));
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  return Array.from(new Uint8Array(digest), value => value.toString(16).padStart(2, '0')).join('');
+}
+async function prepareProof() {
+  if (proofBusy) return;
+  if (demoRun) stopDemo('Demostración detenida. Las mediciones quedan en el historial.');
+  setProofBusy(true);
+  proofController = new AbortController();
+  const timeout = setTimeout(() => proofController.abort(), 120000);
+  text('proof-status', 'Preparando las 125 muestras…');
+  try {
+    const scenario = await get('/demo/scenario');
+    const robotId = 'PERSIST-WEB-' + crypto.randomUUID().slice(0, 8);
+    const timestamp = Date.now() / 1000;
+    for (let first = 0; first < 125; first += 5) {
+      const batch = [];
+      for (let index = first; index < Math.min(first + 5, 125); index += 1) {
+        const sample = {...scenario.frames[index % scenario.frames.length][0], robot_id: robotId, timestamp: timestamp + index};
+        batch.push(fetch('/telemetry', {
+          method: 'POST', headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(sample), signal: proofController.signal,
+        }).then(async response => {
+          if (!response.ok || (await response.json()).accepted !== true) throw Error('Escritura sin confirmar');
+        }));
+      }
+      await Promise.all(batch);
+      text('proof-status', Math.min(first + 5, 125) + '/125 muestras guardadas…');
+    }
+    const rows = await get('/robots/' + encodeURIComponent(robotId) + '/history');
+    if (rows.length !== 125) throw Error('Historial incompleto');
+    const health = await get('/health');
+    const snapshot = {robot_id: robotId, count: 125, sha256: await historyDigest(rows), before_instance_id: health.instance_id};
+    localStorage.setItem(proofStorageKey, JSON.stringify(snapshot));
+    proofSnapshot = snapshot;
+    $('search').value = robotId;
+    $('condition').value = '';
+    selected = robotId;
+    historyKey = '';
+    text('proof-status', '125 muestras guardadas. Abre Render, reinicia el servicio y pulsa Verificar tras reinicio.');
+    await refresh();
+  } catch (error) {
+    proofController.abort();
+    text('proof-status', 'No se pudo preparar la comprobación. Puedes volver a guardar las muestras.');
+  } finally {
+    clearTimeout(timeout);
+    proofController = null;
+    setProofBusy(false);
+  }
+}
+async function verifyProof() {
+  if (proofBusy || !proofSnapshot) return;
+  setProofBusy(true);
+  text('proof-status', 'Comprobando el reinicio y el historial…');
+  try {
+    const health = await get('/health');
+    if (health.instance_id === proofSnapshot.before_instance_id) {
+      text('proof-status', 'El identificador de arranque sigue igual. Espera a que termine el reinicio en Render y vuelve a verificar.');
+      return;
+    }
+    const rows = await get('/robots/' + encodeURIComponent(proofSnapshot.robot_id) + '/history');
+    if (rows.length !== proofSnapshot.count || await historyDigest(rows) !== proofSnapshot.sha256) {
+      text('proof-status', 'El historial difiere de la referencia guardada. Revisa el servicio antes de repetir la comprobación.');
+      return;
+    }
+    text('proof-status', 'Persistencia confirmada · 125/125 muestras idénticas y un nuevo arranque del servicio.');
+    await refresh();
+  } catch (error) {
+    text('proof-status', 'No se pudo consultar el servicio. Espera a que esté disponible y vuelve a verificar.');
+  } finally {
+    setProofBusy(false);
+  }
+}
+setProofBusy(false);
+if (proofSnapshot) text('proof-status', 'Hay una referencia de 125 muestras guardada en este navegador. Puedes verificarla después de reiniciar el servicio.');
+$('proof-prepare').onclick = prepareProof;
+$('proof-verify').onclick = verifyProof;
+window.addEventListener('pagehide', () => proofController?.abort());
 refresh();setInterval(refresh,3000);
 </script>
 </body>
