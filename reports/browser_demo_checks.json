@@ -1,0 +1,65 @@
+{
+  "passed": true,
+  "verified_at_utc": "2026-11-09T16:06:32.236919+00:00",
+  "deployed_commit": "4cfa232f373a06f7a1658534ba558b875265aeef",
+  "public_ui": {
+    "passed": true,
+    "capture_url": "https://aci606-cloud-fleet-sebit44s.onrender.com/dashboard",
+    "desktop": [
+      1440,
+      1100
+    ],
+    "mobile": [
+      390,
+      844
+    ],
+    "checks": [
+      "browser demo start",
+      "persisted browser telemetry",
+      "demo stop",
+      "browser prediction",
+      "browser invalid-data rejection",
+      "live data",
+      "history selection",
+      "filter",
+      "chart variable",
+      "pause/resume",
+      "mobile overflow",
+      "no JavaScript errors"
+    ]
+  },
+  "public_browser_persistence": {
+    "phase": "after",
+    "passed": true,
+    "api_url": "https://aci606-cloud-fleet-sebit44s.onrender.com",
+    "robot_id": "PERSIST-WEB-5a0d27ad",
+    "count": 125,
+    "sha256": "c568e093a9cae291feba8bd12faa6069f9512465c4cf2c63886110eb1583844d",
+    "before_instance_id": "de19df93324d413ba325ce2ab81030fd",
+    "after_instance_id": "d686b72f3bc14599bdfaf26450019815",
+    "database": "postgresql",
+    "checks": [
+      "same browser reference restored",
+      "real server restart",
+      "125 identical samples after restart"
+    ],
+    "restart_deploy_id": "dep-dboutnhsrm7s73d66urg",
+    "restart_method": "same-commit Render redeploy"
+  },
+  "local_lifecycle": {
+    "passed": true,
+    "checks": [
+      "scenario failure recovery",
+      "telemetry failure recovery",
+      "two-minute expiry",
+      "start resumes live display",
+      "separate browser runs",
+      "page close stops writes",
+      "no JavaScript errors"
+    ]
+  },
+  "demo_limits": {
+    "robots_per_run": 6,
+    "duration_seconds": 120
+  }
+}

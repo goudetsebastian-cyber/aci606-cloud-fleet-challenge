@@ -10,6 +10,8 @@ El botón usa un escenario generado con `simulator/core.py` y envía las muestra
 
 En **Pruebas para la presentación** se puede obtener una predicción, probar el rechazo de datos inválidos y guardar 125 muestras para comprobar la persistencia. La referencia se guarda en el navegador. Después de reiniciar el servicio desde la cuenta de Render, el botón **Verificar tras reinicio** exige un identificador de arranque nuevo y el mismo historial completo. Las métricas completas se despliegan en esa misma sección.
 
+La [comprobación de los controles del navegador](reports/browser_demo_checks.json) registra el inicio y la detención de la flota, las respuestas de la API y las 125 muestras idénticas tras un reinicio real de Render.
+
 <!-- deployment:start -->
 Servicio: **[https://aci606-cloud-fleet-sebit44s.onrender.com](https://aci606-cloud-fleet-sebit44s.onrender.com)** · [Panel](https://aci606-cloud-fleet-sebit44s.onrender.com/dashboard) · [API](https://aci606-cloud-fleet-sebit44s.onrender.com/docs)
 
